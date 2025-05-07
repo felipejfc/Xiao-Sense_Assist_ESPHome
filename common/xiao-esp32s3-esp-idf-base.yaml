@@ -67,7 +67,7 @@ logger:
   level: ${log_level}
 
 api:
-
+    
 ota:
 
 wifi:

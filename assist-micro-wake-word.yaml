@@ -1,7 +1,7 @@
 substitutions:
   name: "assist-micro-wake-word"
   friendly_name: "Assist Micro Wake Word"
-  project_name: "fabio-garavini.assist-micro-wake-word"
+  project_name: "felipejfc.assist-micro-wake-word"
   project_version: "1.0.1"
   assist_noise_suppression_level: "1"
   assist_auto_gain: 0dBFS
@@ -10,14 +10,14 @@ substitutions:
   log_level: "ERROR"
 
 dashboard_import:
-  package_import_url: github://fabio-garavini/Xiao-Sense_Assist_ESPHome/assist-micro-wake-word.yaml@main
+  package_import_url: github://felipejfc/Xiao-Sense_Assist_ESPHome/assist-micro-wake-word.yaml@main
   import_full_config: false
 
 packages:
-  device_base: github://fabio-garavini/Xiao-Sense_Assist_ESPHome/common/xiao-esp32s3-esp-idf-base.yaml@main
-  internal-microphone: github://fabio-garavini/Xiao-Sense_Assist_ESPHome/common/internal-microphone.yaml@main
-  assist_base: github://fabio-garavini/Xiao-Sense_Assist_ESPHome/common/assist-base.yaml@main
-  micro_wake_word: github://fabio-garavini/Xiao-Sense_Assist_ESPHome/common/micro-wake-word.yaml@main
+  device_base: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/xiao-esp32s3-esp-idf-base.yaml@main
+  internal-microphone: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/internal-microphone.yaml@main
+  assist_base: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/assist-base.yaml@main
+  micro_wake_word: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/micro-wake-word.yaml@main
 
 #wifi:                      # <-- Uncomment this if you want to manually setup wifi credentials
 #  ssid: !secret wifi_ssid

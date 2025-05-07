@@ -175,9 +175,9 @@ The Assist pipeline is made of:
 
     This a very heavy task and cannot be reliably computed on a Raspberry pi!
 
-  - So you can run it in the cloud using [OpenAI Whisper](https://github.com/fabio-garavini/ha-openai-whisper-stt-api). ⤵️
+  - So you can run it in the cloud using [OpenAI Whisper](https://github.com/felipejfc/ha-openai-whisper-stt-api). ⤵️
 
-    [![Add Repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fabio-garavini&repository=ha-openai-whisper-stt-api&category=integration)
+    [![Add Repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=felipejfc&repository=ha-openai-whisper-stt-api&category=integration)
 
   - Or if you have a powerful enough computer you can use the *Whisper* addon. ⤵️
 
