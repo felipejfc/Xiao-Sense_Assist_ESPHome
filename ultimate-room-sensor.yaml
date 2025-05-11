@@ -13,6 +13,19 @@ substitutions:
   wake_word: hey_jarvis
   log_level: "ERROR"
 
+output:
+  - platform: gpio
+    pin: GPIO21
+    id: user_led_output
+    inverted: true
+
+light:
+  - platform: output
+    name: "${friendly_name} Status LED"
+    output: user_led_output
+    id: user_led
+    internal: true # Hide from Home Assistant, as it's just an indicator
+
 dashboard_import:
   package_import_url: github://felipejfc/Xiao-Sense_Assist_ESPHome/ultimate-room-sensor.yaml@main
   import_full_config: false

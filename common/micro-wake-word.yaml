@@ -5,6 +5,7 @@ micro_wake_word:
     model: github://esphome/micro-wake-word-models/models/v2/vad.json@main
   on_wake_word_detected:
     then:
+      - light.turn_on: user_led
       - voice_assistant.start:
           wake_word: !lambda return wake_word;
 
@@ -24,6 +25,7 @@ voice_assistant:
         condition:
           switch.is_on: use_wake_word
         then:
+          - light.turn_off: user_led
           - micro_wake_word.start:
 
   on_client_connected:
