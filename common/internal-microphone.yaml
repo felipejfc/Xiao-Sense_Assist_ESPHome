@@ -9,7 +9,6 @@ microphone:
     id: echo_microphone
     i2s_din_pin: ${i2s_din_pin}
     channel: ${microphone_channel}
-    adc_type: external
     sample_rate: 16000
     bits_per_sample: 16bit
     pdm: ${microphone_pdm}
