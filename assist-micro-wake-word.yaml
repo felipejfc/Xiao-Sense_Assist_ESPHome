@@ -9,9 +9,9 @@ substitutions:
   wake_word: hey_jarvis
   log_level: "ERROR"
 
-#dashboard_import:
-#  package_import_url: github://felipejfc/Xiao-Sense_Assist_ESPHome/assist-micro-wake-word.yaml@main
-#  import_full_config: false
+dashboard_import:
+  package_import_url: github://felipejfc/Xiao-Sense_Assist_ESPHome/assist-micro-wake-word.yaml@main
+  import_full_config: false
 
 packages:
   device_base: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/xiao-esp32s3-esp-idf-base.yaml@main

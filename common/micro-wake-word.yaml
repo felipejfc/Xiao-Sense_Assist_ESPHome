@@ -3,12 +3,15 @@ micro_wake_word:
     - model: ${wake_word}
   on_wake_word_detected:
     then:
-      - light.turn_on: user_led
       - voice_assistant.start:
           wake_word: !lambda return wake_word;
 
 voice_assistant:
   use_wake_word: false
+  microphone: echo_microphone
+  
+  on_start:
+   - light.turn_on: user_led
 
   on_error:
    - if:
@@ -19,11 +22,11 @@ voice_assistant:
           - micro_wake_word.start:
   
   on_end:
+   - light.turn_off: user_led
    - if:
         condition:
           switch.is_on: use_wake_word
         then:
-          - light.turn_off: user_led
           - micro_wake_word.start:
 
   on_client_connected:
