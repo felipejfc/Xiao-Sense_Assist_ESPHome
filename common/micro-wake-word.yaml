@@ -1,4 +1,6 @@
 micro_wake_word:
+  vad:
+    model: github://esphome/micro-wake-word-models/models/v2/vad.json@main
   models:
     - model: ${wake_word}
   on_wake_word_detected:
