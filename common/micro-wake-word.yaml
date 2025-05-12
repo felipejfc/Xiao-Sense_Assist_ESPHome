@@ -8,7 +8,6 @@ micro_wake_word:
 
 voice_assistant:
   use_wake_word: false
-  microphone: echo_microphone
   
   on_start:
    - light.turn_on: user_led
