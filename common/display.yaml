@@ -1,0 +1,99 @@
+spi:
+  clk_pin: GPIO7
+  mosi_pin: GPIO9
+  miso_pin: GPIO8 # Optional for display-only
+
+display:
+  - platform: st7789v
+    cs_pin: GPIO4
+    dc_pin: GPIO2
+    reset_pin: GPIO3
+    width: 240
+    height: 320
+    rotation: 0 # Adjust as needed (0, 90, 180, 270)
+    # update_interval: 0.5s # Or control updates manually
+    pages:
+      - id: page_idle
+        lambda: |-
+          it.fill(id(COLOR_BLACK));
+          it.printf(it.get_width() / 2, 100, id(font_large), TextAlign::TOP_CENTER, "Hey Jarvis");
+          // Placeholder for time: it.strftime(it.get_width() / 2, 160, id(font_medium), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
+      - id: page_listening
+        lambda: |-
+          it.fill(id(COLOR_BLUE));
+          it.printf(it.get_width() / 2, 120, id(font_large), id(COLOR_WHITE), TextAlign::CENTER, "Listening...");
+      - id: page_thinking
+        lambda: |-
+          it.fill(id(COLOR_BLACK));
+          it.printf(it.get_width() / 2, 120, id(font_large), id(COLOR_WHITE), TextAlign::CENTER, "Thinking...");
+      - id: page_speaking
+        lambda: |-
+          it.fill(id(COLOR_BLACK));
+          // Basic word wrapping is not implemented here. Text might be cut off.
+          // For a better UX, more complex lambda or a custom function would be needed.
+          it.print(10, 20, id(font_medium), id(COLOR_WHITE), id(assistant_response_text).c_str());
+      - id: page_error
+        lambda: |-
+          it.fill(id(COLOR_RED));
+          it.printf(it.get_width() / 2, 120, id(font_medium), id(COLOR_WHITE), TextAlign::CENTER, "Error");
+
+font:
+  - file: "gfonts://Roboto"
+    id: font_large
+    size: 32
+  - file: "gfonts://Roboto"
+    id: font_medium
+    size: 20
+  - file: "gfonts://Roboto"
+    id: font_small # For potentially longer text or details
+    size: 16
+
+globals:
+  - id: assistant_response_text
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+  - id: display_width
+    type: int
+    restore_value: no
+    initial_value: '240'
+  - id: display_height
+    type: int
+    restore_value: no
+    initial_value: '320'
+
+color:
+  - id: COLOR_BLACK
+    red: 0.0
+    green: 0.0
+    blue: 0.0
+  - id: COLOR_WHITE
+    red: 1.0
+    green: 1.0
+    blue: 1.0
+  - id: COLOR_BLUE
+    red: 0.2
+    green: 0.2
+    blue: 0.8
+  - id: COLOR_RED
+    red: 0.8
+    green: 0.1
+    blue: 0.1
+
+# time: # Uncomment if you want to display time on the idle screen
+#   - platform: homeassistant
+#     id: esptime
+#     on_time:
+#       # Every minute
+#       seconds: 0
+#       # Update the display only if the idle page is active
+#       then:
+#         - if:
+#             condition:
+#               - display.is_page: page_idle
+#             then:
+#               - display.update: # This will re-run the lambda for page_idle
+#                   id: page_idle
+#             # Or, more targeted:
+#             # then:
+#             #  - lambda: 'id(page_idle).update();' # if page_idle is a DisplayPage * object

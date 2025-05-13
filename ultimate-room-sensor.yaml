@@ -14,15 +14,23 @@ substitutions:
   log_level: "ERROR"
 
 output:
-  - platform: gpio
+  - platform: ledc
     pin: GPIO21
-    id: user_led_output
-    inverted: true
+    id: led_output
+    inverted: True
 
 light:
-  - platform: output
+  - platform: monochromatic
+    output: led_output
+    id: user_led
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: RBG
+    pin: GPIO21
+    num_leds: 3
+    rmt_channel: 2
+    chipset: ws2812
     name: "${friendly_name} Status LED"
-    output: user_led_output
     id: user_led
     internal: true # Hide from Home Assistant, as it's just an indicator
 
@@ -39,6 +47,7 @@ packages:
   internal-microphone: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/internal-microphone.yaml@main
   assist_base: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/assist-base.yaml@main
   micro_wake_word: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/micro-wake-word.yaml@main
+  display: github://felipejfc/Xiao-Sense_Assist_ESPHome/common/display.yaml@main
 
 #wifi:                      # <-- Uncomment this if you want to manually setup wifi credentials
 #  ssid: !secret wifi_ssid
