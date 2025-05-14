@@ -16,6 +16,55 @@ display:
     pages:
       - id: page_idle
         lambda: |-
+          auto format_weather_condition = [](const std::string& condition_str) -> std::string {
+            if (condition_str == "partlycloudy") return "Partly Cloudy";
+            if (condition_str == "cloudy") return "Cloudy";
+            if (condition_str == "sunny") return "Sunny";
+            if (condition_str == "rain" || condition_str == "rainy") return "Rainy";
+            if (condition_str == "snow" || condition_str == "snowy") return "Snowy";
+            if (condition_str == "clear-night") return "Clear Night";
+            if (condition_str == "fog") return "Fog";
+            if (condition_str == "wind" || condition_str == "windy") return "Windy";
+            if (condition_str == "hail") return "Hail";
+            if (condition_str == "lightning") return "Lightning";
+            if (condition_str == "lightning-rainy") return "Lightning Storm";
+            if (condition_str == "pouring") return "Pouring";
+            if (condition_str == "windy-variant") return "Windy";
+            if (condition_str == "exceptional") return "Weather Alert";
+            if (!condition_str.empty()) {
+                std::string s = condition_str;
+                s[0] = toupper(s[0]);
+                size_t pos = 0;
+                while ((pos = s.find("_", pos)) != std::string::npos) {
+                    s.replace(pos, 1, " ");
+                    if (pos + 1 < s.length()) {
+                        s[pos+1] = toupper(s[pos+1]);
+                    }
+                }
+                return s;
+            }
+            return "Weather N/A";
+          };
+
+          auto get_weather_icon = [](const std::string& condition_str) -> std::string {
+            if (condition_str == "sunny") return "\U000F0599";                 // mdi-weather-sunny
+            if (condition_str == "clear-night") return "\U000F0594";          // mdi-weather-night
+            if (condition_str == "partlycloudy") return "\U000F0595";       // mdi-weather-partly-cloudy
+            if (condition_str == "cloudy") return "\U000F0590";                // mdi-weather-cloudy
+            if (condition_str == "fog") return "\U000F0591";                   // mdi-weather-fog
+            if (condition_str == "hail") return "\U000F0592";                  // mdi-weather-hail
+            if (condition_str == "lightning") return "\U000F0593";             // mdi-weather-lightning
+            if (condition_str == "lightning-rainy") return "\U000F067E";      // mdi-weather-lightning-rainy
+            if (condition_str == "pouring") return "\U000F0596";               // mdi-weather-pouring
+            if (condition_str == "rainy" || condition_str == "rain") return "\U000F0597"; // mdi-weather-rainy
+            if (condition_str == "snowy" || condition_str == "snow") return "\U000F0598"; // mdi-weather-snowy
+            if (condition_str == "snowy-rainy") return "\U000F067F";         // mdi-weather-snowy-rainy
+            if (condition_str == "windy" || condition_str == "wind") return "\U000F059D"; // mdi-weather-windy
+            if (condition_str == "windy-variant") return "\U000F059D";       // mdi-weather-windy (alias)
+            if (condition_str == "exceptional") return "\U000F0F37";         // mdi-weather-sunny-alert (or a more generic alert icon)
+            return ""; // Return empty for unknown, or a fallback glyph
+          };
+
           int center_x = it.get_width() / 2;
           int mid_split_y = it.get_height() / 2;
 
@@ -27,18 +76,30 @@ display:
           // Bottom half - Dark Teal background
           it.filled_rectangle(0, mid_split_y, it.get_width(), it.get_height() - mid_split_y, id(COLOR_DARK_TEAL_BG));
 
+          // Weather Icon - Beige
+          float icon_y = mid_split_y + 35; // Adjusted for icon size
+          if (id(esp_weather_condition).has_state()) {
+            std::string icon_char = get_weather_icon(id(esp_weather_condition).state);
+            if (!icon_char.empty()) {
+              it.printf(center_x, icon_y, id(font_weather_icons), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", icon_char.c_str());
+            }
+          }
+
           // Temperature text - Beige
+          float temp_y = mid_split_y + 90; // Positioned below icon
           if (id(esp_weather_temp_value).has_state() && id(esp_weather_temp_unit).has_state()) {
-            it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+            it.printf(center_x, temp_y, id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
           } else {
-            it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "N/A");
+            it.printf(center_x, temp_y, id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "N/A");
           }
           
           // Weather condition text - Beige
+          float cond_y = mid_split_y + 125; // Positioned below temperature
           if (id(esp_weather_condition).has_state()) {
-            it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", id(esp_weather_condition).state.c_str());
+            std::string formatted_condition = format_weather_condition(id(esp_weather_condition).state);
+            it.printf(center_x, cond_y, id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", formatted_condition.c_str());
           } else {
-            it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Weather N/A");
+            it.printf(center_x, cond_y, id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Weather N/A");
           }
       - id: page_listening
         lambda: |-
@@ -73,12 +134,38 @@ font:
   - file: "gfonts://Roboto"
     id: font_large
     size: 32
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: "gfonts://Roboto"
     id: font_medium
     size: 20
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: "gfonts://Roboto"
     id: font_small # For potentially longer text or details
     size: 16
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+  - file: 'fonts/materialdesignicons-webfont.ttf' # Ensure this font file is in your /fonts directory
+    id: font_weather_icons
+    size: 60 # Adjust size as needed
+    glyphs:  # Common weather glyphs from MDI
+      - "\U000F0599" # mdi-weather-sunny
+      - "\U000F0594" # mdi-weather-night
+      - "\U000F0595" # mdi-weather-partly-cloudy
+      # - "\U000F0F31" # mdi-weather-night-partly-cloudy (use partly-cloudy for night too if night variant not always desired)
+      - "\U000F0590" # mdi-weather-cloudy
+      - "\U000F0591" # mdi-weather-fog
+      - "\U000F0597" # mdi-weather-rainy
+      - "\U000F0598" # mdi-weather-snowy
+      - "\U000F067F" # mdi-weather-snowy-rainy
+      - "\U000F0596" # mdi-weather-pouring
+      - "\U000F067E" # mdi-weather-lightning-rainy
+      - "\U000F0593" # mdi-weather-lightning
+      - "\U000F059D" # mdi-weather-windy
+      - "\U000F0898" # mdi-weather-hurricane
+      - "\U000F0F38" # mdi-weather-tornado
+      - "\U000F0592" # mdi-weather-hail
+      - "\U000F0F37" # mdi-weather-sunny-alert (for exceptional)
+      # Add any other specific icons you need here
 
 globals:
   - id: assistant_response_text
@@ -149,18 +236,3 @@ text_sensor:
     entity_id: weather.forecast_casa_sp
     internal: true
 
-#time:
-#  - platform: homeassistant
-#    id: esptime
-#    on_time:
-#      # Every 5 minutes
-#      minutes: /5
-#      seconds: 0 # Ensure it aligns with the start of the minute
-#      # Update the display only if the idle page is active
-#      then:
-#        - if:
-#            condition:
-#              - display.is_page: page_idle
-#            then:
-#              - display.update:
-#                  id: page_idle
