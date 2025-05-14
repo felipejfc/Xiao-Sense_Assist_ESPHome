@@ -4,13 +4,13 @@ spi:
   miso_pin: GPIO8 # Optional for display-only
 
 display:
-  - platform: st7789v
+  - platform: ili9xxx
+    model: ILI9341
     cs_pin: GPIO4
     dc_pin: GPIO2
     reset_pin: GPIO3
-    width: 240
-    height: 320
     rotation: 0 # Adjust as needed (0, 90, 180, 270)
+    invert_colors: True
     # update_interval: 0.5s # Or control updates manually
     pages:
       - id: page_idle
