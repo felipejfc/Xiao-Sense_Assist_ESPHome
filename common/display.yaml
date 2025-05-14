@@ -15,27 +15,27 @@ display:
     pages:
       - id: page_idle
         lambda: |-
-          it.fill(id(COLOR_BLACK));
+          it.fill(esphome::COLOR_BLACK);
           it.printf(it.get_width() / 2, 100, id(font_large), TextAlign::TOP_CENTER, "Hey Jarvis");
           // Placeholder for time: it.strftime(it.get_width() / 2, 160, id(font_medium), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
       - id: page_listening
         lambda: |-
           it.fill(id(COLOR_BLUE));
-          it.printf(it.get_width() / 2, 120, id(font_large), id(COLOR_WHITE), TextAlign::CENTER, "Listening...");
+          it.printf(it.get_width() / 2, 120, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Listening...");
       - id: page_thinking
         lambda: |-
-          it.fill(id(COLOR_BLACK));
-          it.printf(it.get_width() / 2, 120, id(font_large), id(COLOR_WHITE), TextAlign::CENTER, "Thinking...");
+          it.fill(esphome::COLOR_BLACK);
+          it.printf(it.get_width() / 2, 120, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Thinking...");
       - id: page_speaking
         lambda: |-
-          it.fill(id(COLOR_BLACK));
+          it.fill(esphome::COLOR_BLACK);
           // Basic word wrapping is not implemented here. Text might be cut off.
           // For a better UX, more complex lambda or a custom function would be needed.
-          it.print(10, 20, id(font_medium), id(COLOR_WHITE), id(assistant_response_text).c_str());
+          it.print(10, 20, id(font_medium), esphome::COLOR_WHITE, id(assistant_response_text).c_str());
       - id: page_error
         lambda: |-
           it.fill(id(COLOR_RED));
-          it.printf(it.get_width() / 2, 120, id(font_medium), id(COLOR_WHITE), TextAlign::CENTER, "Error");
+          it.printf(it.get_width() / 2, 120, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, "Error");
 
 font:
   - file: "gfonts://Roboto"
@@ -63,14 +63,14 @@ globals:
     initial_value: '320'
 
 color:
-  - id: COLOR_BLACK
-    red: 0.0
-    green: 0.0
-    blue: 0.0
-  - id: COLOR_WHITE
-    red: 1.0
-    green: 1.0
-    blue: 1.0
+  # - id: COLOR_BLACK  # Removed to avoid ambiguity with ESPHome's built-in COLOR_BLACK
+  #   red: 0.0
+  #   green: 0.0
+  #   blue: 0.0
+  # - id: COLOR_WHITE  # Removed to avoid ambiguity with ESPHome's built-in COLOR_WHITE
+  #   red: 1.0
+  #   green: 1.0
+  #   blue: 1.0
   - id: COLOR_BLUE
     red: 0.2
     green: 0.2
