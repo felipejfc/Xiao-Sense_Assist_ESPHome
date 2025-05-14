@@ -5,14 +5,6 @@ voice_assistant:
   auto_gain: ${assist_auto_gain}
   volume_multiplier: ${assist_volume_multiplier}
 
-  on_listening:
-    then:
-      - display.page.show: page_listening
-
-  on_stt_end: # After speech to text, before intent processing/TTS
-    then:
-      - display.page.show: page_thinking
-
   on_error:
    - logger.log: "Voice assistant error!"
    - if:

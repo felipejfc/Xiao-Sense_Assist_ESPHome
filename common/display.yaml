@@ -26,10 +26,20 @@ display:
 
           // Bottom half - Dark Teal background
           it.filled_rectangle(0, mid_split_y, it.get_width(), it.get_height() - mid_split_y, id(COLOR_DARK_TEAL_BG));
-          // "72°F" text - Beige
-          it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "72°F");
-          // "Mostly sunny" text - Beige
-          it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Mostly sunny");
+
+          // Temperature text - Beige
+          if (id(esp_weather_temp_value).has_state() && id(esp_weather_temp_unit).has_state()) {
+            it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+          } else {
+            it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "N/A");
+          }
+          
+          // Weather condition text - Beige
+          if (id(esp_weather_condition).has_state()) {
+            it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", id(esp_weather_condition).state.c_str());
+          } else {
+            it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Weather N/A");
+          }
       - id: page_listening
         lambda: |-
           it.fill(esphome::COLOR_BLACK);
@@ -120,20 +130,37 @@ voice_assistant:
   on_end:
     - display.page.show: page_idle
 
-# time: # Uncomment if you want to display time on the idle screen
-#   - platform: homeassistant
-#     id: esptime
-#     on_time:
-#       # Every minute
-#       seconds: 0
-#       # Update the display only if the idle page is active
-#       then:
-#         - if:
-#             condition:
-#               - display.is_page: page_idle
-#             then:
-#               - display.update: # This will re-run the lambda for page_idle
-#                   id: page_idle
-#             # Or, more targeted:
-#             # then:
-#             #  - lambda: 'id(page_idle).update();' # if page_idle is a DisplayPage * object
+sensor:
+  - platform: homeassistant
+    id: esp_weather_temp_value
+    entity_id: weather.forecast_casa_sp
+    attribute: temperature
+    internal: true
+    accuracy_decimals: 0
+
+text_sensor:
+  - platform: homeassistant
+    id: esp_weather_temp_unit
+    entity_id: weather.forecast_casa_sp
+    attribute: temperature_unit
+    internal: true
+  - platform: homeassistant
+    id: esp_weather_condition
+    entity_id: weather.forecast_casa_sp
+    internal: true
+
+time:
+  - platform: homeassistant
+    id: esptime
+    on_time:
+      # Every 5 minutes
+      minutes: /5
+      seconds: 0 # Ensure it aligns with the start of the minute
+      # Update the display only if the idle page is active
+      then:
+        - if:
+            condition:
+              - display.is_page: page_idle
+            then:
+              - display.update:
+                  id: page_idle
