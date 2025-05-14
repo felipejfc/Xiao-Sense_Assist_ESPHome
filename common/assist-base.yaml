@@ -13,15 +13,6 @@ voice_assistant:
     then:
       - display.page.show: page_thinking
 
-  on_tts_stream_start:
-    - lambda: id(assistant_response_text) = x; # x is the text chunk
-    - display.page.show: page_speaking
-  
-  on_tts_stream_end:
-    then:
-      # We could clear the text here or wait for on_end
-      # - lambda: id(assistant_response_text) = "";
-
   on_error:
    - logger.log: "Voice assistant error!"
    - display.page.show: page_error
