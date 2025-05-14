@@ -12,13 +12,24 @@ display:
     rotation: 0 # Adjust as needed (0, 90, 180, 270)
     data_rate: 20MHz
     invert_colors: False
-    update_interval: 0.2s # Or control updates manually
+    update_interval: never # Or control updates manually
     pages:
       - id: page_idle
         lambda: |-
-          it.fill(esphome::COLOR_BLACK);
-          it.printf(it.get_width() / 2, 100, id(font_large), TextAlign::TOP_CENTER, "Hey Jarvis");
-          // Placeholder for time: it.strftime(it.get_width() / 2, 160, id(font_medium), TextAlign::TOP_CENTER, "%H:%M", id(esptime).now());
+          int center_x = it.get_width() / 2;
+          int mid_split_y = it.get_height() / 2;
+
+          // Top half - Beige background
+          it.filled_rectangle(0, 0, it.get_width(), mid_split_y, id(COLOR_BEIGE_BG));
+          // "Hey Jarvis" text - Dark Teal
+          it.printf(center_x, mid_split_y / 2, id(font_large), id(COLOR_DARK_TEAL_BG), TextAlign::CENTER_CENTER, "Hey Jarvis");
+
+          // Bottom half - Dark Teal background
+          it.filled_rectangle(0, mid_split_y, it.get_width(), it.get_height() - mid_split_y, id(COLOR_DARK_TEAL_BG));
+          // "72°F" text - Beige
+          it.printf(center_x, mid_split_y + (mid_split_y / 3), id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER_CENTER, "72°F");
+          // "Mostly sunny" text - Beige
+          it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER_CENTER, "Mostly sunny");
       - id: page_listening
         lambda: |-
           it.fill(id(COLOR_BLUE));
@@ -80,6 +91,10 @@ color:
     red: 0.8
     green: 0.1
     blue: 0.1
+  - id: COLOR_BEIGE_BG #EFE5D0
+    hex: "EFE5D0"
+  - id: COLOR_DARK_TEAL_BG #36555B
+    hex: "36555B"
 
 # time: # Uncomment if you want to display time on the idle screen
 #   - platform: homeassistant
