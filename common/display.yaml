@@ -5,6 +5,7 @@ spi:
 
 display:
   - platform: st7789v
+    id: oled_display
     cs_pin: GPIO4
     dc_pin: GPIO2
     reset_pin: GPIO3

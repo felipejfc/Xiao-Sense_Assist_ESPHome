@@ -7,27 +7,26 @@ voice_assistant:
 
   on_listening:
     then:
-      - display.show_page: page_listening
+      - oled_display.show_page: page_listening
 
   on_stt_end: # After speech to text, before intent processing/TTS
     then:
-      - display.show_page: page_thinking
+      - oled_display.show_page: page_thinking
 
   on_tts_stream_start:
     - lambda: id(assistant_response_text) = x; # x is the text chunk
-    - display.show_page: page_speaking
+    - oled_display.show_page: page_speaking
   
   on_tts_stream_end:
     then:
       # We could clear the text here or wait for on_end
       # - lambda: id(assistant_response_text) = "";
-      pass # page_speaking remains until on_end
 
   on_error:
    - logger.log: "Voice assistant error!"
-   - display.show_page: page_error
+   - oled_display.show_page: page_error
    - delay: 3s
-   - display.show_page: page_idle
+   - oled_display.show_page: page_idle
    - if:
         condition:
           switch.is_on: use_wake_word
@@ -37,7 +36,7 @@ voice_assistant:
   
   on_end:
    - lambda: id(assistant_response_text) = ""; # Clear text
-   - display.show_page: page_idle
+   - oled_display.show_page: page_idle
    - if:
         condition:
           switch.is_on: use_wake_word
