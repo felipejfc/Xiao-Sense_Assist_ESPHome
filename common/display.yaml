@@ -10,9 +10,9 @@ display:
     dc_pin: GPIO2
     reset_pin: GPIO3
     rotation: 0 # Adjust as needed (0, 90, 180, 270)
-    data_rate: 80MHz
+    data_rate: 20MHz
     invert_colors: False
-    # update_interval: 0.5s # Or control updates manually
+    update_interval: 0.2s # Or control updates manually
     pages:
       - id: page_idle
         lambda: |-
