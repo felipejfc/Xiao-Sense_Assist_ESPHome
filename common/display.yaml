@@ -9,10 +9,10 @@ display:
     cs_pin: GPIO4
     dc_pin: GPIO2
     reset_pin: GPIO3
-    rotation: 0 # Adjust as needed (0, 90, 180, 270)
-    data_rate: 20MHz
+    rotation: ${display_rotation}
+    data_rate: ${display_data_rate}
+    update_interval: ${display_update_interval}
     invert_colors: False
-    update_interval: never # Or control updates manually
     pages:
       - id: page_idle
         lambda: |-
