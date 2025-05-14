@@ -15,9 +15,6 @@ voice_assistant:
 
   on_error:
    - logger.log: "Voice assistant error!"
-   - display.page.show: page_error
-   - delay: 3s
-   - display.page.show: page_idle
    - if:
         condition:
           switch.is_on: use_wake_word
@@ -27,12 +24,11 @@ voice_assistant:
   
   on_end:
    - lambda: id(assistant_response_text) = ""; # Clear text
-   - display.page.show: page_idle
    - if:
-        condition:
-          switch.is_on: use_wake_word
-        then:
-          - micro_wake_word.start:
+      condition:
+        switch.is_on: use_wake_word
+      then:
+        - micro_wake_word.start:
 
 button:
   - platform: template

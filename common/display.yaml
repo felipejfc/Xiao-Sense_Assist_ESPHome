@@ -32,12 +32,22 @@ display:
           it.printf(center_x, mid_split_y + (mid_split_y * 2 / 3), id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Mostly sunny");
       - id: page_listening
         lambda: |-
-          it.fill(id(COLOR_BLUE));
-          it.printf(it.get_width() / 2, 120, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Listening...");
+          it.fill(esphome::COLOR_BLACK);
+          int center_x = it.get_width() / 2;
+          // Display "Listening..." in the top part
+          it.printf(center_x, it.get_height() / 3, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Listening...");
+          // Display a prompt to speak in the bottom part
+          it.printf(center_x, it.get_height() * 2 / 3, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, "Speak now...");
       - id: page_thinking
         lambda: |-
           it.fill(esphome::COLOR_BLACK);
-          it.printf(it.get_width() / 2, 120, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Thinking...");
+          int center_x = it.get_width() / 2;
+          // Display "Thinking..." in the top part
+          it.printf(center_x, it.get_height() / 3, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Thinking...");
+          // Display the recognized text in the bottom part
+          if (!id(assistant_response_text).empty()) {
+            it.printf(center_x, it.get_height() * 2 / 3, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, id(assistant_response_text).c_str());
+          }
       - id: page_speaking
         lambda: |-
           it.fill(esphome::COLOR_BLACK);
@@ -75,14 +85,6 @@ globals:
     initial_value: '320'
 
 color:
-  # - id: COLOR_BLACK  # Removed to avoid ambiguity with ESPHome's built-in COLOR_BLACK
-  #   red: 0.0
-  #   green: 0.0
-  #   blue: 0.0
-  # - id: COLOR_WHITE  # Removed to avoid ambiguity with ESPHome's built-in COLOR_WHITE
-  #   red: 1.0
-  #   green: 1.0
-  #   blue: 1.0
   - id: COLOR_BLUE
     red: 0.2
     green: 0.2
@@ -95,6 +97,28 @@ color:
     hex: "EFE5D0"
   - id: COLOR_DARK_TEAL_BG #36555B
     hex: "36555B"
+
+voice_assistant:
+  on_listening:
+    then:
+      - display.page.show: page_listening
+  
+  on_stt_end:
+    then:
+      - lambda: |-
+          id(assistant_response_text) = x;
+      - display.page.show: page_thinking
+  
+  on_start:
+   - display.page.show: page_listening
+
+  on_error:
+    - display.page.show: page_error
+    - delay: 3s
+    - display.page.show: page_idle
+  
+  on_end:
+    - display.page.show: page_idle
 
 # time: # Uncomment if you want to display time on the idle screen
 #   - platform: homeassistant
