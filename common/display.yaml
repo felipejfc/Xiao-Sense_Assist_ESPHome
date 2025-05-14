@@ -10,7 +10,7 @@ display:
     dc_pin: GPIO2
     reset_pin: GPIO3
     rotation: 0 # Adjust as needed (0, 90, 180, 270)
-    invert_colors: True
+    invert_colors: False
     # update_interval: 0.5s # Or control updates manually
     pages:
       - id: page_idle
