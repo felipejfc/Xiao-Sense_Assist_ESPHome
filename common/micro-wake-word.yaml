@@ -13,7 +13,7 @@ voice_assistant:
   
   on_start:
    - light.turn_on: user_led
-   - display.show_page: page_listening
+   - display.page.show: page_listening
 
   on_error:
    - if:
