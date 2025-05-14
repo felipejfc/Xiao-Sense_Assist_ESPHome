@@ -149,18 +149,18 @@ text_sensor:
     entity_id: weather.forecast_casa_sp
     internal: true
 
-time:
-  - platform: homeassistant
-    id: esptime
-    on_time:
-      # Every 5 minutes
-      minutes: /5
-      seconds: 0 # Ensure it aligns with the start of the minute
-      # Update the display only if the idle page is active
-      then:
-        - if:
-            condition:
-              - display.is_page: page_idle
-            then:
-              - display.update:
-                  id: page_idle
+#time:
+#  - platform: homeassistant
+#    id: esptime
+#    on_time:
+#      # Every 5 minutes
+#      minutes: /5
+#      seconds: 0 # Ensure it aligns with the start of the minute
+#      # Update the display only if the idle page is active
+#      then:
+#        - if:
+#            condition:
+#              - display.is_page: page_idle
+#            then:
+#              - display.update:
+#                  id: page_idle
