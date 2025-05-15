@@ -18,7 +18,7 @@ display:
 lvgl:
   id: main_lvgl
   theme:
-    primary_font: !font font_medium # Default font, can be overridden
+    primary_font: font_medium # Default font, can be overridden
   pages:
     - id: lvgl_page_idle
       widgets:
@@ -30,7 +30,7 @@ lvgl:
           x: 0
           y: 35
           style:
-            text_font: !font font_large
+            text_font: font_large # Corrected
             text_color: !color COLOR_TEXT_ICON_TEAL
         - type: obj # Main Card
           id: card_idle
@@ -48,21 +48,21 @@ lvgl:
               align: TOP_MID
               y: 25 
               style:
-                text_font: !font font_weather_icons
+                text_font: font_weather_icons # Corrected
                 # text_color is set dynamically
             - type: label # Temperature
               id: lbl_temperature_idle
               align: CENTER
               y: 15 # Offset slightly due to large font
               style:
-                text_font: !font font_temperature
+                text_font: font_temperature # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
             - type: label # Weather Condition
               id: lbl_condition_idle
               align: BOTTOM_MID
               y: -25
               style:
-                text_font: !font font_medium
+                text_font: font_medium # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
     
     - id: lvgl_page_listening
@@ -82,14 +82,14 @@ lvgl:
               align: CENTER
               y: -30
               style:
-                text_font: !font font_large
+                text_font: font_large # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
             - type: label
               text: "Speak now..."
               align: CENTER
               y: 30
               style:
-                text_font: !font font_medium
+                text_font: font_medium # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
 
     - id: lvgl_page_thinking
@@ -109,14 +109,14 @@ lvgl:
               align: CENTER
               y: -30
               style:
-                text_font: !font font_large
+                text_font: font_large # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
             - type: label
               id: lbl_stt_result_thinking # For recognized text
               align: CENTER
               y: 30
               style:
-                text_font: !font font_medium
+                text_font: font_medium # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
                 text_long_mode: WRAP
               width: lv.pct(90) # Allow wrapping within the label
@@ -140,7 +140,7 @@ lvgl:
               y: 10
               width: lv.pct(95) # Width relative to parent (card)
               style:
-                text_font: !font font_medium
+                text_font: font_medium # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
                 text_long_mode: WRAP # Enable text wrapping
 
@@ -160,7 +160,7 @@ lvgl:
               text: "Error"
               align: CENTER
               style:
-                text_font: !font font_large
+                text_font: font_large # Corrected
                 text_color: !color COLOR_TEXT_ICON_TEAL
   
   # Global style for all pages (screens)
