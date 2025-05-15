@@ -13,6 +13,7 @@ display:
     data_rate: ${display_data_rate}
     update_interval: ${display_update_interval} # Set to a low value like 1s if not actively updated by pages
     invert_colors: False
+    auto_clear_enabled: true # Set to true if not using LVGL and relying on page lambdas to redraw fully
     pages:
       - id: page_idle
         lambda: |-
@@ -81,7 +82,7 @@ display:
           int card_width = it.get_width() - (2 * card_margin);
           int card_height = it.get_height() - card_y_start - card_margin;
           float card_radius = 20.0;
-          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          it.filled_rectangle(card_margin, card_y_start, card_width, card_height, id(COLOR_CARD_BACKGROUND));
 
           // Content inside card - vertically centered stack
           int card_content_center_x = center_x;
@@ -125,7 +126,7 @@ display:
           int card_width = it.get_width() - (2 * card_margin);
           int card_height = 200; // Fixed height for this card
           float card_radius = 20.0;
-          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          it.filled_rectangle(card_margin, card_y_start, card_width, card_height, id(COLOR_CARD_BACKGROUND));
           
           it.printf(center_x, card_y_start + 60, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Listening...");
           it.printf(center_x, card_y_start + 120, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Speak now...");
@@ -140,7 +141,7 @@ display:
           int card_width = it.get_width() - (2 * card_margin);
           int card_height = 200;
           float card_radius = 20.0;
-          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          it.filled_rectangle(card_margin, card_y_start, card_width, card_height, id(COLOR_CARD_BACKGROUND));
 
           it.printf(center_x, card_y_start + 60, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Thinking...");
           if (!id(assistant_response_text).empty()) {
@@ -158,7 +159,7 @@ display:
           int card_width = it.get_width() - (2 * card_margin);
           int card_height = it.get_height() - (2* card_margin); // Full height card
           float card_radius = 20.0;
-          it.filled_rounded_rectangle(card_x, card_y, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          it.filled_rectangle(card_x, card_y, card_width, card_height, id(COLOR_CARD_BACKGROUND));
           
           // Text wrapping is complex in lambda; this will print from top-left of card content area
           // For better UX, actual text wrapping or scrolling would be needed for long responses.
@@ -175,7 +176,7 @@ display:
           int card_width = it.get_width() - (2 * card_margin);
           int card_height = 100;
           float card_radius = 20.0;
-          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          it.filled_rectangle(card_margin, card_y_start, card_width, card_height, id(COLOR_CARD_BACKGROUND));
           
           it.printf(center_x, card_y_start + card_height/2, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Error");
 
