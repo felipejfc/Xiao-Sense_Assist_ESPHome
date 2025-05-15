@@ -11,14 +11,15 @@ display:
     reset_pin: GPIO3
     rotation: ${display_rotation}
     data_rate: ${display_data_rate}
-    update_interval: never # LVGL handles updates
+    update_interval: ${display_update_interval} # LVGL handles updates
     auto_clear_enabled: false # LVGL handles clearing
     # The old 'pages:' lambda block is removed here
 
 lvgl:
   id: main_lvgl
   theme:
-    primary_font: font_medium # Default font, can be overridden
+    name: default # Explicitly set default theme
+    primary_font: font_medium 
   pages:
     - id: lvgl_page_idle
       widgets:
@@ -165,7 +166,7 @@ lvgl:
   
   # Global style for all pages (screens)
   style:
-    bg_color: !color COLOR_BACKGROUND_PEACH
+    bg_color: !color COLOR_BACKGROUND_MAIN # Solid background
 
 font:
   - file: "gfonts://Nunito Sans"
@@ -272,13 +273,13 @@ globals:
       };
 
 color:
-  - id: COLOR_BACKGROUND_PEACH
-    hex: "FDD9AE"
-  - id: COLOR_CARD_BACKGROUND
+  - id: COLOR_BACKGROUND_MAIN # New solid background color
+    hex: "F7C991"
+  - id: COLOR_CARD_BACKGROUND # Soft off-white cream - Should be #FAF4EA
     hex: "FAF4EA"
-  - id: COLOR_TEXT_ICON_TEAL
+  - id: COLOR_TEXT_ICON_TEAL # Muted teal
     hex: "3A6666"
-  - id: COLOR_SUN_ICON
+  - id: COLOR_SUN_ICON # Warm golden yellow for sun
     hex: "F4B940"
   # Keep old colors in case they are used by other includes not visible here
   - id: COLOR_BLUE 
@@ -289,9 +290,9 @@ color:
     red: 0.8
     green: 0.1
     blue: 0.1
-  - id: COLOR_BEIGE_BG
+  - id: COLOR_BEIGE_BG # Old - can be removed if no longer used by any includes
     hex: "EFE5D0"
-  - id: COLOR_DARK_TEAL_BG
+  - id: COLOR_DARK_TEAL_BG # Old - can be removed if no longer used by any includes
     hex: "36555B"
 
 voice_assistant:
