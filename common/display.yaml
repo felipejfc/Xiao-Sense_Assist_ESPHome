@@ -11,7 +11,7 @@ display:
     reset_pin: GPIO3
     rotation: ${display_rotation}
     data_rate: ${display_data_rate}
-    update_interval: ${display_update_interval} # LVGL handles updates
+    update_interval: never
     auto_clear_enabled: false # LVGL handles clearing
     # The old 'pages:' lambda block is removed here
 
