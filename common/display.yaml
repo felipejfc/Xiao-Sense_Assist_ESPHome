@@ -11,7 +11,7 @@ display:
     reset_pin: GPIO3
     rotation: ${display_rotation}
     data_rate: ${display_data_rate}
-    update_interval: ${display_update_interval}
+    update_interval: ${display_update_interval} # Set to a low value like 1s if not actively updated by pages
     invert_colors: False
     pages:
       - id: page_idle
@@ -22,7 +22,7 @@ display:
             if (condition_str == "sunny") return "Sunny";
             if (condition_str == "rain" || condition_str == "rainy") return "Rainy";
             if (condition_str == "snow" || condition_str == "snowy") return "Snowy";
-            if (condition_str == "clear-night") return "Clear Night";
+            if (condition_str == "clear-night") return "Clear Night"; // Icon will be different
             if (condition_str == "fog") return "Fog";
             if (condition_str == "wind" || condition_str == "windy") return "Windy";
             if (condition_str == "hail") return "Hail";
@@ -46,10 +46,13 @@ display:
             return "Weather N/A";
           };
 
-          auto get_weather_icon = [](const std::string& condition_str) -> std::string {
+          auto get_weather_icon_glyph = [](const std::string& condition_str) -> std::string {
             if (condition_str == "sunny") return "\U000F0599";                 // mdi-weather-sunny
             if (condition_str == "clear-night") return "\U000F0594";          // mdi-weather-night
-            if (condition_str == "partlycloudy") return "\U000F0595";       // mdi-weather-partly-cloudy
+            if (condition_str == "partlycloudy") { // Use night version if applicable, needs sun integration
+                // For simplicity, always show day version or use a separate text_sensor for is_daylight
+                return "\U000F0595"; // mdi-weather-partly-cloudy
+            }
             if (condition_str == "cloudy") return "\U000F0590";                // mdi-weather-cloudy
             if (condition_str == "fog") return "\U000F0591";                   // mdi-weather-fog
             if (condition_str == "hail") return "\U000F0592";                  // mdi-weather-hail
@@ -59,99 +62,148 @@ display:
             if (condition_str == "rainy" || condition_str == "rain") return "\U000F0597"; // mdi-weather-rainy
             if (condition_str == "snowy" || condition_str == "snow") return "\U000F0598"; // mdi-weather-snowy
             if (condition_str == "snowy-rainy") return "\U000F067F";         // mdi-weather-snowy-rainy
-            if (condition_str == "windy" || condition_str == "wind") return "\U000F059D"; // mdi-weather-windy
-            if (condition_str == "windy-variant") return "\U000F059D";       // mdi-weather-windy (alias)
-            if (condition_str == "exceptional") return "\U000F0F37";         // mdi-weather-sunny-alert (or a more generic alert icon)
-            return ""; // Return empty for unknown, or a fallback glyph
+            if (condition_str == "windy" || condition_str == "wind" || condition_str == "windy-variant") return "\U000F059D"; // mdi-weather-windy
+            if (condition_str == "exceptional") return "\U000F0F37";         // mdi-weather-sunny-alert
+            return ""; 
           };
+          
+          // Background - Solid Warm Peach
+          it.fill(id(COLOR_BACKGROUND_PEACH));
 
           int center_x = it.get_width() / 2;
-          int mid_split_y = it.get_height() / 2;
+          
+          // "Hey Jarvis"
+          it.printf(center_x, 35, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "\"Hey Jarvis\"");
 
-          // Top half - Beige background
-          it.filled_rectangle(0, 0, it.get_width(), mid_split_y, id(COLOR_BEIGE_BG));
-          // "Hey Jarvis" text - Dark Teal
-          it.printf(center_x, mid_split_y / 2, id(font_large), id(COLOR_DARK_TEAL_BG), TextAlign::CENTER, "Hey Jarvis");
+          // Card
+          int card_margin = 20;
+          int card_y_start = 75;
+          int card_width = it.get_width() - (2 * card_margin);
+          int card_height = it.get_height() - card_y_start - card_margin;
+          float card_radius = 20.0;
+          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
 
-          // Bottom half - Dark Teal background
-          it.filled_rectangle(0, mid_split_y, it.get_width(), it.get_height() - mid_split_y, id(COLOR_DARK_TEAL_BG));
-
-          // Weather Icon - Beige
-          float icon_y = mid_split_y + 35; // Adjusted for icon size
-          if (id(esp_weather_condition).has_state()) {
-            std::string icon_char = get_weather_icon(id(esp_weather_condition).state);
-            if (!icon_char.empty()) {
-              it.printf(center_x, icon_y, id(font_weather_icons), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", icon_char.c_str());
-            }
+          // Content inside card - vertically centered stack
+          int card_content_center_x = center_x;
+          
+          // 1. Weather Icon
+          float icon_y_offset = card_y_start + 45; // Adjust as needed
+          esphome::Color icon_color = id(COLOR_TEXT_ICON_TEAL);
+          std::string condition_state_str = id(esp_weather_condition).has_state() ? id(esp_weather_condition).state : "";
+          if (condition_state_str == "sunny") {
+            icon_color = id(COLOR_SUN_ICON);
+          }
+          std::string icon_glyph = get_weather_icon_glyph(condition_state_str);
+          if (!icon_glyph.empty()) {
+            it.printf(card_content_center_x, icon_y_offset, id(font_weather_icons), icon_color, TextAlign::CENTER, "%s", icon_glyph.c_str());
           }
 
-          // Temperature text - Beige
-          float temp_y = mid_split_y + 90; // Positioned below icon
+          // 2. Temperature
+          float temp_y_offset = icon_y_offset + 85; // Adjust based on icon size and desired spacing
           if (id(esp_weather_temp_value).has_state() && id(esp_weather_temp_unit).has_state()) {
-            it.printf(center_x, temp_y, id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+            it.printf(card_content_center_x, temp_y_offset, id(font_temperature), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
           } else {
-            it.printf(center_x, temp_y, id(font_large), id(COLOR_BEIGE_BG), TextAlign::CENTER, "N/A");
+            it.printf(card_content_center_x, temp_y_offset, id(font_temperature), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "N/A");
           }
           
-          // Weather condition text - Beige
-          float cond_y = mid_split_y + 125; // Positioned below temperature
+          // 3. Weather Condition Text
+          float cond_y_offset = temp_y_offset + 65; // Adjust based on temp font size
           if (id(esp_weather_condition).has_state()) {
-            std::string formatted_condition = format_weather_condition(id(esp_weather_condition).state);
-            it.printf(center_x, cond_y, id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "%s", formatted_condition.c_str());
+            std::string formatted_condition = format_weather_condition(condition_state_str);
+            it.printf(card_content_center_x, cond_y_offset, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "%s", formatted_condition.c_str());
           } else {
-            it.printf(center_x, cond_y, id(font_medium), id(COLOR_BEIGE_BG), TextAlign::CENTER, "Weather N/A");
+            it.printf(card_content_center_x, cond_y_offset, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Weather N/A");
           }
+
       - id: page_listening
         lambda: |-
-          it.fill(esphome::COLOR_BLACK);
+          // Background - Solid Warm Peach
+          it.fill(id(COLOR_BACKGROUND_PEACH));
           int center_x = it.get_width() / 2;
-          // Display "Listening..." in the top part
-          it.printf(center_x, it.get_height() / 3, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Listening...");
-          // Display a prompt to speak in the bottom part
-          it.printf(center_x, it.get_height() * 2 / 3, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, "Speak now...");
+          int card_margin = 20;
+          int card_y_start = it.get_height() / 2 - 100; // Center card vertically
+          int card_width = it.get_width() - (2 * card_margin);
+          int card_height = 200; // Fixed height for this card
+          float card_radius = 20.0;
+          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          
+          it.printf(center_x, card_y_start + 60, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Listening...");
+          it.printf(center_x, card_y_start + 120, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Speak now...");
+
       - id: page_thinking
         lambda: |-
-          it.fill(esphome::COLOR_BLACK);
+          // Background - Solid Warm Peach
+          it.fill(id(COLOR_BACKGROUND_PEACH));
           int center_x = it.get_width() / 2;
-          // Display "Thinking..." in the top part
-          it.printf(center_x, it.get_height() / 3, id(font_large), esphome::COLOR_WHITE, TextAlign::CENTER, "Thinking...");
-          // Display the recognized text in the bottom part
+          int card_margin = 20;
+          int card_y_start = it.get_height() / 2 - 100;
+          int card_width = it.get_width() - (2 * card_margin);
+          int card_height = 200;
+          float card_radius = 20.0;
+          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+
+          it.printf(center_x, card_y_start + 60, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Thinking...");
           if (!id(assistant_response_text).empty()) {
-            it.printf(center_x, it.get_height() * 2 / 3, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, id(assistant_response_text).c_str());
+            // Simple centering, may need wrapping for long text
+            it.printf(center_x, card_y_start + 120, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, id(assistant_response_text).c_str());
           }
+
       - id: page_speaking
         lambda: |-
-          it.fill(esphome::COLOR_BLACK);
-          // Basic word wrapping is not implemented here. Text might be cut off.
-          // For a better UX, more complex lambda or a custom function would be needed.
-          it.print(10, 20, id(font_medium), esphome::COLOR_WHITE, id(assistant_response_text).c_str());
+          // Background - Solid Warm Peach
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          int card_margin = 20;
+          int card_x = card_margin;
+          int card_y = card_margin; // Card at top for speaking response
+          int card_width = it.get_width() - (2 * card_margin);
+          int card_height = it.get_height() - (2* card_margin); // Full height card
+          float card_radius = 20.0;
+          it.filled_rounded_rectangle(card_x, card_y, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          
+          // Text wrapping is complex in lambda; this will print from top-left of card content area
+          // For better UX, actual text wrapping or scrolling would be needed for long responses.
+          int text_margin_card = 15;
+          it.print(card_x + text_margin_card, card_y + text_margin_card, id(font_medium), id(COLOR_TEXT_ICON_TEAL), id(assistant_response_text).c_str());
+          
       - id: page_error
         lambda: |-
-          it.fill(id(COLOR_RED));
-          it.printf(it.get_width() / 2, 120, id(font_medium), esphome::COLOR_WHITE, TextAlign::CENTER, "Error");
+          // Background - Solid Warm Peach
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          int center_x = it.get_width() / 2;
+          int card_margin = 20;
+          int card_y_start = it.get_height() / 2 - 50;
+          int card_width = it.get_width() - (2 * card_margin);
+          int card_height = 100;
+          float card_radius = 20.0;
+          it.filled_rounded_rectangle(card_margin, card_y_start, card_width, card_height, card_radius, id(COLOR_CARD_BACKGROUND));
+          
+          it.printf(center_x, card_y_start + card_height/2, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Error");
 
 font:
-  - file: "gfonts://Roboto"
+  - file: "gfonts://Nunito Sans"
     id: font_large
-    size: 32
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "gfonts://Roboto"
+    size: 28 # Adjusted from previous 32 due to font style
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  - file: "gfonts://Nunito Sans"
+    id: font_temperature # Specific larger font for temperature
+    size: 72
+    glyphs: "°0123456789CF" # Minimal needed glyphs
+  - file: "gfonts://Nunito Sans"
     id: font_medium
-    size: 20
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "gfonts://Roboto"
-    id: font_small # For potentially longer text or details
-    size: 16
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    size: 18 # Adjusted from previous 20
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  - file: "gfonts://Nunito Sans"
+    id: font_small
+    size: 14 # Adjusted from previous 16
+    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
   - file: 'fonts/materialdesignicons-webfont.ttf' # Ensure this font file is in your /fonts directory
     id: font_weather_icons
-    size: 60 # Adjust size as needed
+    size: 55 # Adjusted to fit card
     glyphs:  # Common weather glyphs from MDI
       - "\U000F0599" # mdi-weather-sunny
       - "\U000F0594" # mdi-weather-night
       - "\U000F0595" # mdi-weather-partly-cloudy
-      # - "\U000F0F31" # mdi-weather-night-partly-cloudy (use partly-cloudy for night too if night variant not always desired)
       - "\U000F0590" # mdi-weather-cloudy
       - "\U000F0591" # mdi-weather-fog
       - "\U000F0597" # mdi-weather-rainy
@@ -161,11 +213,7 @@ font:
       - "\U000F067E" # mdi-weather-lightning-rainy
       - "\U000F0593" # mdi-weather-lightning
       - "\U000F059D" # mdi-weather-windy
-      - "\U000F0898" # mdi-weather-hurricane
-      - "\U000F0F38" # mdi-weather-tornado
-      - "\U000F0592" # mdi-weather-hail
       - "\U000F0F37" # mdi-weather-sunny-alert (for exceptional)
-      # Add any other specific icons you need here
 
 globals:
   - id: assistant_response_text
@@ -175,25 +223,35 @@ globals:
   - id: display_width
     type: int
     restore_value: no
-    initial_value: '240'
+    initial_value: '240' # Default, ILI9341 might be 240x320
   - id: display_height
     type: int
     restore_value: no
-    initial_value: '320'
+    initial_value: '320' # Default
 
 color:
+  - id: COLOR_BACKGROUND_PEACH # Warm peach solid background
+    hex: "FDD9AE"
+  - id: COLOR_CARD_BACKGROUND # Soft off-white cream
+    hex: "FAF4EA"
+  - id: COLOR_TEXT_ICON_TEAL # Muted teal
+    hex: "3A6666"
+  - id: COLOR_SUN_ICON # Warm golden yellow for sun
+    hex: "F4B940"
+  # Remove old gradient colors if confirmed unused, keeping others for now
   - id: COLOR_BLUE
     red: 0.2
     green: 0.2
     blue: 0.8
-  - id: COLOR_RED
+  - id: COLOR_RED # For original error page, though new one uses teal
     red: 0.8
     green: 0.1
     blue: 0.1
-  - id: COLOR_BEIGE_BG #EFE5D0
+  - id: COLOR_BEIGE_BG #EFE5D0 - Old
     hex: "EFE5D0"
-  - id: COLOR_DARK_TEAL_BG #36555B
+  - id: COLOR_DARK_TEAL_BG #36555B - Old
     hex: "36555B"
+
 
 voice_assistant:
   on_listening:
@@ -206,21 +264,29 @@ voice_assistant:
           id(assistant_response_text) = x;
       - display.page.show: page_thinking
   
-  on_start:
+  on_start: # When voice assistant starts, go to listening. (Could also be on_wake_word_detected if using that)
    - display.page.show: page_listening
+
+  on_tts_start: # When HA starts speaking the response
+    then:
+      - lambda: |- # Store the text that HA will speak
+          id(assistant_response_text) = x;
+      - display.page.show: page_speaking
 
   on_error:
     - display.page.show: page_error
     - delay: 3s
     - display.page.show: page_idle
   
-  on_end:
+  on_end: # When voice assistant interaction is fully finished
+    - lambda: |- # Clear response text
+        id(assistant_response_text) = "";
     - display.page.show: page_idle
 
 sensor:
   - platform: homeassistant
     id: esp_weather_temp_value
-    entity_id: weather.forecast_casa_sp
+    entity_id: weather.forecast_casa_sp # Change to your HA weather entity
     attribute: temperature
     internal: true
     accuracy_decimals: 0
@@ -235,4 +301,3 @@ text_sensor:
     id: esp_weather_condition
     entity_id: weather.forecast_casa_sp
     internal: true
-
