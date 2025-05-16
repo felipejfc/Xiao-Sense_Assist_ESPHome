@@ -202,7 +202,7 @@ voice_assistant:
         then:
           - lvgl.resume:
           - lvgl.widget.redraw:
-  on_stt_start:
+  on_stt_vad_start:
     - lvgl.page.show: lvgl_page_thinking
   on_stt_end:
     - lvgl.label.update:
