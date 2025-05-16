@@ -15,7 +15,6 @@ display:
     auto_clear_enabled: false # LVGL handles clearing
     id: main_display
     invert_colors: false
-    # The old 'pages:' lambda block is removed here
 
 lvgl:
   id: main_lvgl
@@ -173,20 +172,6 @@ font:
     glyphs: "\U000F0599\U000F0594\U000F0595\U000F0590\U000F0591\U000F0592\U000F0593\U000F0596\U000F0597\U000F0598\U000F059D\U000F067E\U000F067F\U000F0F37\U000F14E4"
 
 
-globals:
-  - id: assistant_response_text
-    type: std::string
-    restore_value: no
-    initial_value: '""'
-  - id: display_width # Still useful for reference, though LVGL manages sizes
-    type: int
-    restore_value: no
-    initial_value: '240'
-  - id: display_height
-    type: int
-    restore_value: no
-    initial_value: '320'
-
 color:
   - id: COLOR_BACKGROUND_MAIN # New solid background color
     hex: F7D391
@@ -219,21 +204,19 @@ voice_assistant:
             - lvgl.widget.redraw:
   on_stt_end:
     then:
-      - lambda: id(assistant_response_text) = x;
       - lvgl.label.update:
           id: lbl_stt_result_thinking
-          text: !lambda return id(assistant_response_text).c_str();
+          text: !lambda return x.c_str();
       - lvgl.page.show: lvgl_page_thinking
   on_start:
     then:
       - lvgl.page.show: lvgl_page_listening
   on_tts_start:
     then:
-      - lambda: id(assistant_response_text) = x;
       - lvgl.page.show: lvgl_page_speaking
       - lvgl.label.update:
           id: lbl_tts_output_speaking
-          text: !lambda return id(assistant_response_text).c_str();
+          text: !lambda return x.c_str();
   on_error:
     then:
       - lvgl.page.show: lvgl_page_error
@@ -241,7 +224,6 @@ voice_assistant:
       - lvgl.page.show: lvgl_page_idle
   on_end:
     then:
-      - lambda: id(assistant_response_text) = "";
       - lvgl.label.update:
           id: lbl_stt_result_thinking
           text: ""
