@@ -15,7 +15,6 @@ voice_assistant:
           - micro_wake_word.start:
   
   on_end:
-   - lambda: id(assistant_response_text) = ""; # Clear text
    - if:
       condition:
         switch.is_on: use_wake_word
