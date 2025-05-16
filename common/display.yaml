@@ -83,8 +83,8 @@ lvgl:
       widgets:
         - obj:
             id: card_listening
-            width: 90%
-            height: 200
+            width: 100%
+            height: 100%
             align: CENTER
             styles: [background] # Changed from inline style
             widgets:
@@ -194,43 +194,39 @@ color:
     hex: "36555B"
 
 voice_assistant:
+  id: voiceassistant
   on_listening:
-    then:
-      - lvgl.page.show: lvgl_page_listening
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
+    - lvgl.page.show: lvgl_page_listening
+    - if:
+        condition: lvgl.is_paused
+        then:
+          - lvgl.resume:
+          - lvgl.widget.redraw:
+  on_stt_start:
+    - lvgl.page.show: lvgl_page_thinking
   on_stt_end:
-    then:
-      - lvgl.label.update:
-          id: lbl_stt_result_thinking
-          text: !lambda return x.c_str();
-      - lvgl.page.show: lvgl_page_thinking
+    - lvgl.label.update:
+        id: lbl_stt_result_thinking
+        text: !lambda return x.c_str();
   on_start:
-    then:
-      - lvgl.page.show: lvgl_page_listening
+    - lvgl.page.show: lvgl_page_listening
   on_tts_start:
-    then:
-      - lvgl.page.show: lvgl_page_speaking
-      - lvgl.label.update:
-          id: lbl_tts_output_speaking
-          text: !lambda return x.c_str();
+    - lvgl.page.show: lvgl_page_speaking
+    - lvgl.label.update:
+        id: lbl_tts_output_speaking
+        text: !lambda return x.c_str();
   on_error:
-    then:
-      - lvgl.page.show: lvgl_page_error
-      - delay: 3s
-      - lvgl.page.show: lvgl_page_idle
+    - lvgl.page.show: lvgl_page_error
+    - delay: 3s
+    - lvgl.page.show: lvgl_page_idle
   on_end:
-    then:
-      - lvgl.label.update:
-          id: lbl_stt_result_thinking
-          text: ""
-      - lvgl.label.update:
-          id: lbl_tts_output_speaking
-          text: ""
-      - lvgl.page.show: lvgl_page_idle
+    - lvgl.label.update:
+        id: lbl_stt_result_thinking
+        text: ""
+    - lvgl.label.update:
+        id: lbl_tts_output_speaking
+        text: ""
+    - lvgl.page.show: lvgl_page_idle
 
 sensor:
   - platform: homeassistant
