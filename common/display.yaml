@@ -13,173 +13,155 @@ display:
     data_rate: ${display_data_rate}
     update_interval: ${display_update_interval}
     auto_clear_enabled: false # LVGL handles clearing
+    id: main_display
+    invert_colors: false
     # The old 'pages:' lambda block is removed here
 
 lvgl:
   id: main_lvgl
-  theme:
-    name: default # Explicitly set default theme
-    primary_font: font_medium 
+  style_definitions:
+  - id: label_style_large
+    text_font: font_large
+    text_color: COLOR_TEXT_ICON_TEAL
+  - id: background
+    bg_color: COLOR_BACKGROUND_MAIN
+    radius: 0
+    border_width: 0
+  - id: card_bg
+    bg_color: COLOR_CARD_BACKGROUND
+    radius: 20
+    border_width: 0
+  - id: font_weather_teal
+    text_font: font_weather_icons
+    text_color: COLOR_TEXT_ICON_TEAL
+  - id: style_font_temperature
+    text_font: font_temperature
+    text_color: COLOR_TEXT_ICON_TEAL
+  - id: style_font_medium
+    text_font: font_medium
+    text_color: COLOR_TEXT_ICON_TEAL
+  - id: style_medium_text_wrap # New style definition
+    text_font: font_medium
+    text_color: COLOR_TEXT_ICON_TEAL
   pages:
     - id: lvgl_page_idle
+      styles: background
       widgets:
-        # Background is implicitly the page itself, styled later or globally
-        - type: label # "Hey Jarvis"
-          id: lbl_hey_jarvis
-          text: "Hey Jarvis"
-          align: TOP_MID
-          x: 0
-          y: 35
-          style:
-            text_font: font_large # Corrected
-            text_color: !color COLOR_TEXT_ICON_TEAL
-        - type: obj # Main Card
-          id: card_idle
-          width: lv.pct(90) # 90% of parent (screen) width
-          height: lv.pct(70) # 70% of parent (screen) height
-          align: CENTER
-          y: 30 # Offset down slightly from true center to make space for "Hey Jarvis"
-          style:
-            bg_color: !color COLOR_CARD_BACKGROUND
-            radius: 20
-            border_width: 0
-          widgets:
-            - type: label # Weather Icon
-              id: lbl_weather_icon_idle
-              align: TOP_MID
-              y: 25 
-              style:
-                text_font: font_weather_icons # Corrected
-                # text_color is set dynamically
-            - type: label # Temperature
-              id: lbl_temperature_idle
-              align: CENTER
-              y: 15 # Offset slightly due to large font
-              style:
-                text_font: font_temperature # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-            - type: label # Weather Condition
-              id: lbl_condition_idle
-              align: BOTTOM_MID
-              y: -25
-              style:
-                text_font: font_medium # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-    
+        - label:
+            id: lbl_hey_jarvis
+            text: "\"Hey Jarvis\""
+            align: TOP_MID
+            x: 0
+            y: 20
+            styles: [label_style_large] # Changed to list
+        - obj:
+            id: card_idle
+            width: 90%
+            height: 70%
+            align: CENTER
+            y: 30
+            styles: [card_bg] # Changed to list
+            widgets:
+              - label:
+                  id: lbl_weather_icon_idle
+                  align: TOP_MID
+                  y: 20
+                  text: "\U000F14E4"
+                  styles: [font_weather_teal] # Changed to list
+              - label:
+                  id: lbl_temperature_idle
+                  align: CENTER
+                  text: "--.- °C"
+                  y: 15
+                  styles: [style_font_temperature] # Changed to list
+              - label:
+                  id: lbl_condition_idle
+                  align: BOTTOM_MID
+                  text: "unknown"
+                  y: -15
+                  styles: [style_font_medium] # Changed to list
     - id: lvgl_page_listening
       widgets:
-        - type: obj # Card
-          id: card_listening
-          width: lv.pct(90)
-          height: 200
-          align: CENTER
-          style:
-            bg_color: !color COLOR_CARD_BACKGROUND
-            radius: 20
-            border_width: 0
-          widgets:
-            - type: label
-              text: "Listening..."
-              align: CENTER
-              y: -30
-              style:
-                text_font: font_large # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-            - type: label
-              text: "Speak now..."
-              align: CENTER
-              y: 30
-              style:
-                text_font: font_medium # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-
+        - obj:
+            id: card_listening
+            width: 90%
+            height: 200
+            align: CENTER
+            styles: [background] # Changed from inline style
+            widgets:
+              - label:
+                  text: "Listening..."
+                  align: CENTER
+                  y: -30
+                  styles: [label_style_large] # Changed from inline style
+              - label:
+                  text: "Speak now..."
+                  align: CENTER
+                  y: 30
+                  styles: [style_font_medium] # Changed from inline style
     - id: lvgl_page_thinking
       widgets:
-        - type: obj # Card
-          id: card_thinking
-          width: lv.pct(90)
-          height: 200
-          align: CENTER
-          style:
-            bg_color: !color COLOR_CARD_BACKGROUND
-            radius: 20
-            border_width: 0
-          widgets:
-            - type: label
-              text: "Thinking..."
-              align: CENTER
-              y: -30
-              style:
-                text_font: font_large # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-            - type: label
-              id: lbl_stt_result_thinking # For recognized text
-              align: CENTER
-              y: 30
-              style:
-                text_font: font_medium # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-                text_long_mode: WRAP
-              width: lv.pct(90) # Allow wrapping within the label
-
+        - obj:
+            id: card_thinking
+            width: 100%
+            height: 100%
+            align: CENTER
+            styles: [background] # Changed from inline style
+            widgets:
+              - label:
+                  text: "Thinking..."
+                  align: CENTER
+                  y: -30
+                  styles: [label_style_large] # Changed from inline style
+              - label:
+                  id: lbl_stt_result_thinking
+                  align: CENTER
+                  y: 30
+                  width: 90%
+                  styles: [style_medium_text_wrap] # Changed from inline style
     - id: lvgl_page_speaking
       widgets:
-        - type: obj # Card for assistant response
-          id: card_speaking
-          width: lv.pct(90)
-          height: lv.pct(80)
-          align: CENTER
-          style:
-            bg_color: !color COLOR_CARD_BACKGROUND
-            radius: 20
-            border_width: 0
-          widgets:
-            - type: label
-              id: lbl_tts_output_speaking
-              align: TOP_LEFT
-              x: 10 
-              y: 10
-              width: lv.pct(95) # Width relative to parent (card)
-              style:
-                text_font: font_medium # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-                text_long_mode: WRAP # Enable text wrapping
-
+        - obj:
+            id: card_speaking
+            width: 100%
+            height: 100%
+            align: CENTER
+            styles: [background] # Changed from inline style
+            widgets:
+              - label:
+                  id: lbl_tts_output_speaking
+                  align: TOP_LEFT
+                  x: 10
+                  y: 10
+                  width: 95%
+                  styles: [style_medium_text_wrap] # Changed from inline style
+                  long_mode: WRAP
     - id: lvgl_page_error
       widgets:
-        - type: obj # Card
-          id: card_error
-          width: lv.pct(90)
-          height: 100
-          align: CENTER
-          style:
-            bg_color: !color COLOR_CARD_BACKGROUND
-            radius: 20
-            border_width: 0
-          widgets:
-            - type: label
-              text: "Error"
-              align: CENTER
-              style:
-                text_font: font_large # Corrected
-                text_color: !color COLOR_TEXT_ICON_TEAL
-  
-  # Global style for all pages (screens)
-  style:
-    bg_color: !color COLOR_BACKGROUND_MAIN # Solid background
+        - obj:
+            id: card_error
+            width: 90%
+            height: 100
+            align: CENTER
+            styles: [background] # Changed from inline style
+            widgets:
+              - label:
+                  text: "Error"
+                  align: CENTER
+                  styles: [label_style_large] # Changed from inline style
 
 font:
-  - file: "gfonts://Nunito Sans"
+  - file: "gfonts://Nunito Sans@bold"
     id: font_large
-    size: 28
+    size: 30
     glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "gfonts://Nunito Sans"
+  - file: "gfonts://Nunito Sans@bold"
     id: font_temperature
     size: 72
-    glyphs: "°0123456789CF"
-  - file: "gfonts://Nunito Sans"
+    glyphs: "°0123456789CF-. "
+  - file: "gfonts://Nunito Sans@semi-bold"
     id: font_medium
-    size: 18
+    size: 24
     glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: "gfonts://Nunito Sans"
     id: font_small
@@ -188,20 +170,8 @@ font:
   - file: 'fonts/materialdesignicons-webfont.ttf'
     id: font_weather_icons
     size: 55
-    glyphs:
-      - "\\U000F0599" # mdi-weather-sunny
-      - "\\U000F0594" # mdi-weather-night
-      - "\\U000F0595" # mdi-weather-partly-cloudy
-      - "\\U000F0590" # mdi-weather-cloudy
-      - "\\U000F0591" # mdi-weather-fog
-      - "\\U000F0597" # mdi-weather-rainy
-      - "\\U000F0598" # mdi-weather-snowy
-      - "\\U000F067F" # mdi-weather-snowy-rainy
-      - "\\U000F0596" # mdi-weather-pouring
-      - "\\U000F067E" # mdi-weather-lightning-rainy
-      - "\\U000F0593" # mdi-weather-lightning
-      - "\\U000F059D" # mdi-weather-windy
-      - "\\U000F0F37" # mdi-weather-sunny-alert
+    glyphs: "\U000F0599\U000F0594\U000F0595\U000F0590\U000F0591\U000F0592\U000F0593\U000F0596\U000F0597\U000F0598\U000F059D\U000F067E\U000F067F\U000F0F37\U000F14E4"
+
 
 globals:
   - id: assistant_response_text
@@ -216,71 +186,14 @@ globals:
     type: int
     restore_value: no
     initial_value: '320'
-  # C++ helper lambdas for weather formatting (can be called from ESPHome lambdas)
-  - id: format_weather_condition_cpp
-    type: |-
-      std::function<std::string(std::string)>
-    initial_value: !lambda |-
-      return [](const std::string& condition_str) -> std::string {
-        if (condition_str == "partlycloudy") return "Partly Cloudy";
-        if (condition_str == "cloudy") return "Cloudy";
-        if (condition_str == "sunny") return "Sunny";
-        if (condition_str == "rain" || condition_str == "rainy") return "Rainy";
-        if (condition_str == "snow" || condition_str == "snowy") return "Snowy";
-        if (condition_str == "clear-night") return "Clear Night";
-        if (condition_str == "fog") return "Fog";
-        if (condition_str == "wind" || condition_str == "windy") return "Windy";
-        if (condition_str == "hail") return "Hail";
-        if (condition_str == "lightning") return "Lightning";
-        if (condition_str == "lightning-rainy") return "Lightning Storm";
-        if (condition_str == "pouring") return "Pouring";
-        if (condition_str == "windy-variant") return "Windy";
-        if (condition_str == "exceptional") return "Weather Alert";
-        if (!condition_str.empty()) {
-            std::string s = condition_str;
-            s[0] = toupper(s[0]);
-            size_t pos = 0;
-            while ((pos = s.find("_", pos)) != std::string::npos) {
-                s.replace(pos, 1, " ");
-                if (pos + 1 < s.length()) {
-                    s[pos+1] = toupper(s[pos+1]);
-                }
-            }
-            return s;
-        }
-        return "Weather N/A";
-      };
-  - id: get_weather_icon_glyph_cpp
-    type: |-
-      std::function<std::string(std::string)>
-    initial_value: !lambda |-
-      return [](const std::string& condition_str) -> std::string {
-        if (condition_str == "sunny") return "\\U000F0599";
-        if (condition_str == "clear-night") return "\\U000F0594";
-        if (condition_str == "partlycloudy") return "\\U000F0595";
-        if (condition_str == "cloudy") return "\\U000F0590";
-        if (condition_str == "fog") return "\\U000F0591";
-        if (condition_str == "hail") return "\\U000F0592";
-        if (condition_str == "lightning") return "\\U000F0593";
-        if (condition_str == "lightning-rainy") return "\\U000F067E";
-        if (condition_str == "pouring") return "\\U000F0596";
-        if (condition_str == "rainy" || condition_str == "rain") return "\\U000F0597";
-        if (condition_str == "snowy" || condition_str == "snow") return "\\U000F0598";
-        if (condition_str == "snowy-rainy") return "\\U000F067F";
-        if (condition_str == "windy" || condition_str == "wind" || condition_str == "windy-variant") return "\\U000F059D";
-        if (condition_str == "exceptional") return "\\U000F0F37";
-        return ""; // Default/unknown icon
-      };
 
 color:
   - id: COLOR_BACKGROUND_MAIN # New solid background color
-    hex: "F7C991"
+    hex: F7D391
   - id: COLOR_CARD_BACKGROUND # Soft off-white cream - Should be #FAF4EA
-    hex: "FAF4EA"
+    hex: F0EAC1
   - id: COLOR_TEXT_ICON_TEAL # Muted teal
-    hex: "3A6666"
-  - id: COLOR_SUN_ICON # Warm golden yellow for sun
-    hex: "F4B940"
+    hex: 3A6666
   # Keep old colors in case they are used by other includes not visible here
   - id: COLOR_BLUE 
     red: 0.2
@@ -299,39 +212,43 @@ voice_assistant:
   on_listening:
     then:
       - lvgl.page.show: lvgl_page_listening
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
   on_stt_end:
     then:
       - lambda: id(assistant_response_text) = x;
-      - lvgl.widget.set_property:
-          id: lbl_stt_result_thinking # Target the label in the thinking page
-          name: text
-          value: !lambda return id(assistant_response_text).c_str();
+      - lvgl.label.update:
+          id: lbl_stt_result_thinking
+          text: !lambda return id(assistant_response_text).c_str();
       - lvgl.page.show: lvgl_page_thinking
   on_start:
-   - lvgl.page.show: lvgl_page_listening
+    then:
+      - lvgl.page.show: lvgl_page_listening
   on_tts_start:
     then:
       - lambda: id(assistant_response_text) = x;
-      - lvgl.widget.set_property:
-          id: lbl_tts_output_speaking # Target the label in the speaking page
-          name: text
-          value: !lambda return id(assistant_response_text).c_str();
       - lvgl.page.show: lvgl_page_speaking
+      - lvgl.label.update:
+          id: lbl_tts_output_speaking
+          text: !lambda return id(assistant_response_text).c_str();
   on_error:
-    - lvgl.page.show: lvgl_page_error
-    - delay: 3s
-    - lvgl.page.show: lvgl_page_idle
+    then:
+      - lvgl.page.show: lvgl_page_error
+      - delay: 3s
+      - lvgl.page.show: lvgl_page_idle
   on_end:
-    - lambda: id(assistant_response_text) = ""; # Clear the global for next time
-    - lvgl.widget.set_property: # Clear text on thinking page
-        id: lbl_stt_result_thinking
-        name: text
-        value: ""
-    - lvgl.widget.set_property: # Clear text on speaking page
-        id: lbl_tts_output_speaking
-        name: text
-        value: ""
-    - lvgl.page.show: lvgl_page_idle
+    then:
+      - lambda: id(assistant_response_text) = "";
+      - lvgl.label.update:
+          id: lbl_stt_result_thinking
+          text: ""
+      - lvgl.label.update:
+          id: lbl_tts_output_speaking
+          text: ""
+      - lvgl.page.show: lvgl_page_idle
 
 sensor:
   - platform: homeassistant
@@ -348,16 +265,15 @@ sensor:
                 - lambda: 'return id(esp_weather_temp_value).has_state();'
                 - lambda: 'return id(esp_weather_temp_unit).has_state();'
             then:
-              - lvgl.widget.set_property:
+              - lvgl.label.update:
                   id: lbl_temperature_idle
-                  name: text
-                  value: !lambda |-
-                    return esphome::parse_printf("%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+                  text: 
+                    format: "%.0f%s"
+                    args: [id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str()]
             else:
-              - lvgl.widget.set_property:
+              - lvgl.label.update:
                   id: lbl_temperature_idle
-                  name: text
-                  value: "N/A"
+                  text: "N/A"
 
 text_sensor:
   - platform: homeassistant
@@ -373,16 +289,15 @@ text_sensor:
                 - lambda: 'return id(esp_weather_temp_value).has_state();'
                 - lambda: 'return id(esp_weather_temp_unit).has_state();'
             then:
-              - lvgl.widget.set_property:
+              - lvgl.label.update:
                   id: lbl_temperature_idle
-                  name: text
-                  value: !lambda |-
-                    return esphome::parse_printf("%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+                  text:
+                    format: "%.0f%s"
+                    args: [id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str()]
             else:
-              - lvgl.widget.set_property:
+              - lvgl.label.update:
                   id: lbl_temperature_idle
-                  name: text
-                  value: "N/A"
+                  text: "N/A"
 
   - platform: homeassistant
     id: esp_weather_condition
@@ -390,35 +305,91 @@ text_sensor:
     internal: true
     on_value:
       then:
-        - lvgl.widget.set_property:
+        - lvgl.label.update:
             id: lbl_condition_idle
-            name: text
-            value: !lambda return id(format_weather_condition_cpp)(id(esp_weather_condition).state).c_str();
-        - lvgl.widget.set_property:
-            id: lbl_weather_icon_idle
-            name: text
-            value: !lambda return id(get_weather_icon_glyph_cpp)(id(esp_weather_condition).state).c_str();
-        - lvgl.widget.set_style_text_color: # Dynamically set icon color
-            id: lbl_weather_icon_idle
-            value: !lambda |-
-              if (id(esp_weather_condition).state == "sunny") {
-                return id(COLOR_SUN_ICON);
+            text: !lambda |-
+              const std::string& condition_str = id(esp_weather_condition).state;
+              if (condition_str == "partlycloudy") return "Partly Cloudy";
+              if (condition_str == "cloudy") return "Cloudy";
+              if (condition_str == "sunny") return "Sunny";
+              if (condition_str == "rain" || condition_str == "rainy") return "Rainy";
+              if (condition_str == "snow" || condition_str == "snowy") return "Snowy";
+              if (condition_str == "clear-night") return "Clear Night";
+              if (condition_str == "fog") return "Fog";
+              if (condition_str == "wind" || condition_str == "windy") return "Windy";
+              if (condition_str == "hail") return "Hail";
+              if (condition_str == "lightning") return "Lightning";
+              if (condition_str == "lightning-rainy") return "Lightning Storm";
+              if (condition_str == "pouring") return "Pouring";
+              if (condition_str == "windy-variant") return "Windy";
+              if (condition_str == "exceptional") return "Weather Alert";
+              if (!condition_str.empty()) {
+                  std::string s = condition_str;
+                  s[0] = toupper(s[0]);
+                  size_t pos = 0;
+                  while ((pos = s.find("_", pos)) != std::string::npos) {
+                      s.replace(pos, 1, " ");
+                      if (pos + 1 < s.length()) {
+                          s[pos+1] = toupper(s[pos+1]);
+                      }
+                  }
+                  return s.c_str();
               }
-              return id(COLOR_TEXT_ICON_TEAL);
+              return "Weather N/A";
+        - lvgl.label.update:
+            id: lbl_weather_icon_idle
+            text: !lambda |-
+              const std::string& condition_str = id(esp_weather_condition).state;
+              if (condition_str == "sunny") return u8"\U000F0599";       // mdi-weather-sunny
+              if (condition_str == "clear-night") return u8"\U000F0594"; // mdi-weather-night
+              if (condition_str == "partlycloudy") return u8"\U000F0595"; // mdi-weather-partly-cloudy
+              if (condition_str == "cloudy") return u8"\U000F0590";      // mdi-weather-cloudy
+              if (condition_str == "fog") return u8"\U000F0591";         // mdi-weather-fog
+              if (condition_str == "hail") return u8"\U000F0592";        // mdi-weather-hail
+              if (condition_str == "lightning") return u8"\U000F0593";   // mdi-weather-lightning
+              if (condition_str == "lightning-rainy") return u8"\U000F067E"; // mdi-weather-lightning-rainy
+              if (condition_str == "pouring") return u8"\U000F0596";     // mdi-weather-pouring
+              if (condition_str == "rainy" || condition_str == "rain") return u8"\U000F0597"; // mdi-weather-rainy
+              if (condition_str == "snowy" || condition_str == "snow") return u8"\U000F0598"; // mdi-weather-snowy
+              if (condition_str == "snowy-rainy") return u8"\U000F067F"; // mdi-weather-snowy-rainy
+              if (condition_str == "windy" || condition_str == "wind" || condition_str == "windy-variant") return u8"\U000F059D"; // mdi-weather-windy
+              if (condition_str == "exceptional") return u8"\U000F0F37"; // mdi-weather-sunny-alert
+              return ""; // Default/unknown icon
+
+switch:
+  - platform: template
+    name: Antiburn
+    id: switch_antiburn
+    icon: mdi:television-shimmer
+    optimistic: true
+    entity_category: "config"
+    turn_on_action:
+      - logger.log: "Starting Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+      - lvgl.pause:
+          show_snow: true
+    turn_off_action:
+      - logger.log: "Stopping Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+
 time:
-  - platform: homeassistant # Re-added for periodic weather updates
-    id: esptime
+  - platform: sntp
     on_time:
-      # Every 5 minutes
-      minutes: /5
-      seconds: 0
-      then:
-        - if:
-            condition:
-              lvgl.page.is_showing: lvgl_page_idle # Check if idle page is active
-            then:
-              # Request updates from HA for the weather sensors.
-              # This will trigger their on_value automations, which update LVGL.
-              - component.update: esp_weather_temp_value
-              - component.update: esp_weather_temp_unit
-              - component.update: esp_weather_condition
+      - hours: 2,3,4,5
+        minutes: 5
+        seconds: 0
+        then:
+          - switch.turn_on: switch_antiburn
+      - hours: 2,3,4,5
+        minutes: 35
+        seconds: 0
+        then:
+          - switch.turn_off: switch_antiburn
