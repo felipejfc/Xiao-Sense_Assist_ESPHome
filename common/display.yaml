@@ -202,14 +202,11 @@ voice_assistant:
         then:
           - lvgl.resume:
           - lvgl.widget.redraw:
-  on_stt_vad_start:
-    - lvgl.page.show: lvgl_page_thinking
   on_stt_end:
     - lvgl.label.update:
         id: lbl_stt_result_thinking
         text: !lambda return x.c_str();
-  on_start:
-    - lvgl.page.show: lvgl_page_listening
+    - lvgl.page.show: lvgl_page_thinking
   on_tts_start:
     - lvgl.page.show: lvgl_page_speaking
     - lvgl.label.update:
