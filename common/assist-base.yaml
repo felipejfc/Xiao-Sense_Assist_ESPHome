@@ -7,20 +7,7 @@ voice_assistant:
 
   on_error:
    - logger.log: "Voice assistant error!"
-   - if:
-        condition:
-          switch.is_on: use_wake_word
-        then:
-          - micro_wake_word.stop:
-          - micro_wake_word.start:
   
-  on_end:
-   - if:
-      condition:
-        switch.is_on: use_wake_word
-      then:
-        - micro_wake_word.start:
-
 button:
   - platform: template
     name: "Voice Assistant"
