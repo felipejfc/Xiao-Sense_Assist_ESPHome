@@ -217,6 +217,7 @@ voice_assistant:
     - delay: 3s
     - lvgl.page.show: lvgl_page_idle
   on_end:
+    - delay: 3s
     - lvgl.label.update:
         id: lbl_stt_result_thinking
         text: ""
