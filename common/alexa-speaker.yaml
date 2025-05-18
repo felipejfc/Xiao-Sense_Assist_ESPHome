@@ -2,6 +2,6 @@ voice_assistant:
   on_stt_end:
     then:
       - homeassistant.service:
-        service: notify.${alexa_media_speaker}
-        data:
-          message: !lambda return x;
+          service: notify.${alexa_media_speaker}
+          data:
+            message: !lambda return x;
