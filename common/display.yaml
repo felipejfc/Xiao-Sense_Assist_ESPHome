@@ -8,6 +8,7 @@ display:
     cs_pin: 15
     dc_pin: 33
     reset_pin: 34
+    dimensions:
       height: 128
       width: 128
       offset_height: 1
