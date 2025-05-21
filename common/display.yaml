@@ -1,14 +1,17 @@
 spi:
-  clk_pin: GPIO7
-  mosi_pin: GPIO9
-  miso_pin: GPIO8 # Optional for display-only
+  clk_pin: 17
+  mosi_pin: 21
 
 display:
   - platform: ili9xxx
-    model: ILI9341
-    cs_pin: GPIO4
-    dc_pin: GPIO2
-    reset_pin: GPIO3
+    model: ST7789V
+    cs_pin: 15
+    dc_pin: 33
+    reset_pin: 34
+      height: 128
+      width: 128
+      offset_height: 1
+      offset_width: 2
     rotation: ${display_rotation}
     data_rate: ${display_data_rate}
     update_interval: ${display_update_interval} # Set to a low value like 1s if not actively updated by pages
@@ -302,3 +305,18 @@ text_sensor:
     id: esp_weather_condition
     entity_id: weather.forecast_casa_sp
     internal: true
+
+output:
+  - platform: ledc
+    pin: 16
+    min_power: 0.65
+    max_power: 0.99
+    zero_means_zero: true
+    id: backlightdim
+
+light:
+  - platform: monochromatic
+    output: backlightdim
+    restore_mode: RESTORE_DEFAULT_ON
+    name: "Backlight"
+    id: backlightlight
