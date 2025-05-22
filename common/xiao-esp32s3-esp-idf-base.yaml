@@ -6,7 +6,7 @@ esphome:
     name: ${project_name}
     version: ${project_version}
   platformio_options:
-    build_flags: -DBOARD_HAS_PSRAM
+    build_flags: -DBOARD_HAS_PSRAM -mfix-esp32-psram-cache-issue
     board_build.arduino.memory_type: qio_opi
     board_build.f_flash: 80000000L
     board_build.flash_mode: qio
@@ -21,7 +21,7 @@ esp32:
   framework:
     type: esp-idf
     version: 4.4.8
-    platform_version: 5.4.0 
+    platform_version: 6.3.2 
     sdkconfig_options:
       CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
       CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
