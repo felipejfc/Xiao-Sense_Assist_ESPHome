@@ -11,9 +11,6 @@ micro_wake_word:
 voice_assistant:
   use_wake_word: false
   
-  on_start:
-   - light.turn_on: user_led
-
   on_error:
    - if:
         condition:
@@ -23,7 +20,6 @@ voice_assistant:
           - micro_wake_word.start:
   
   on_end:
-   - light.turn_off: user_led
    - if:
         condition:
           switch.is_on: use_wake_word
