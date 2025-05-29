@@ -1,255 +1,269 @@
+esphome:
+  on_boot:
+    priority: 600
+    then:
+      - lambda: !lambda |-
+          id(last_activity_time) = millis() / 1000; // Update activity timestamp
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/ssieb/esphome
+      ref: lp5562
+    components: [ lp5562 ]
+    refresh: 1min
+
+
 spi:
-  clk_pin: GPIO7
-  mosi_pin: GPIO9
-  miso_pin: GPIO8
+  clk_pin: GPIO15
+  mosi_pin: GPIO21
+
+i2c:
+  - id: bus_a
+    sda: 45
+    scl: 0
+    scan: True
+
+lp5562:
+  - i2c_id: bus_a
+
+output:
+  - platform: lp5562
+    id: red
+    channel: 0
+  - platform: lp5562
+    id: green
+    channel: 1
+  - platform: lp5562
+    id: blue
+    channel: 2
+  - platform: lp5562
+    id: white
+    channel: 3
+
+
+light:
+  - platform: monochromatic
+    name: backlight
+    id: backlight
+    output: white
+    restore_mode: always_on
+
+interval:
+  - interval: 5s
+    then:
+      - script.execute: check_idle_time
+
 
 display:
   - platform: ili9xxx
-    model: ILI9341
-    cs_pin: GPIO4
-    dc_pin: GPIO2
-    reset_pin: GPIO3
+    id: status_display
+    model: ST7789V
+    cs_pin: GPIO14
+    dc_pin: GPIO42
+    reset_pin: GPIO48
+    dimensions:
+      height: 128
+      width: 128
+      offset_height: 1
+      offset_width: 2
     rotation: ${display_rotation}
     data_rate: ${display_data_rate}
-    update_interval: ${display_update_interval}
-    auto_clear_enabled: false # LVGL handles clearing
-    id: main_display
-    invert_colors: false
-
-lvgl:
-  id: main_lvgl
-  style_definitions:
-  - id: label_style_large
-    text_font: font_large
-    text_color: COLOR_TEXT_ICON_TEAL
-  - id: background
-    bg_color: COLOR_BACKGROUND_MAIN
-    radius: 0
-    border_width: 0
-  - id: card_bg
-    bg_color: COLOR_CARD_BACKGROUND
-    radius: 20
-    border_width: 0
-  - id: font_weather_teal
-    text_font: font_weather_icons
-    text_color: COLOR_TEXT_ICON_TEAL
-  - id: style_font_temperature
-    text_font: font_temperature
-    text_color: COLOR_TEXT_ICON_TEAL
-  - id: style_font_medium
-    text_font: font_medium
-    text_color: COLOR_TEXT_ICON_TEAL
-  - id: style_medium_text_wrap # New style definition
-    text_font: font_medium
-    text_color: COLOR_TEXT_ICON_TEAL
-  pages:
-    - id: lvgl_page_idle
-      styles: background
-      widgets:
-        - label:
-            id: lbl_hey_jarvis
-            text: "\"Hey Jarvis\""
-            align: TOP_MID
-            x: 0
-            y: 20
-            styles: [label_style_large] # Changed to list
-        - obj:
-            id: card_idle
-            width: 90%
-            height: 70%
-            align: CENTER
-            y: 30
-            styles: [card_bg] # Changed to list
-            widgets:
-              - label:
-                  id: lbl_weather_icon_idle
-                  align: TOP_MID
-                  y: 20
-                  text: "\U000F14E4"
-                  styles: [font_weather_teal] # Changed to list
-              - label:
-                  id: lbl_temperature_idle
-                  align: CENTER
-                  text: "--.- °C"
-                  y: 15
-                  styles: [style_font_temperature] # Changed to list
-              - label:
-                  id: lbl_condition_idle
-                  align: BOTTOM_MID
-                  text: "unknown"
-                  y: -15
-                  styles: [style_font_medium] # Changed to list
-    - id: lvgl_page_listening
-      widgets:
-        - obj:
-            id: card_listening
-            width: 100%
-            height: 100%
-            align: CENTER
-            styles: [background] # Changed from inline style
-            widgets:
-              - label:
-                  text: "Listening..."
-                  align: CENTER
-                  y: -30
-                  styles: [label_style_large] # Changed from inline style
-              - label:
-                  text: "Speak now..."
-                  align: CENTER
-                  y: 30
-                  styles: [style_font_medium] # Changed from inline style
-    - id: lvgl_page_thinking
-      widgets:
-        - obj:
-            id: card_thinking
-            width: 100%
-            height: 100%
-            align: CENTER
-            styles: [background] # Changed from inline style
-            widgets:
-              - label:
-                  text: "Thinking..."
-                  align: CENTER
-                  y: -30
-                  styles: [label_style_large] # Changed from inline style
-              - label:
-                  id: lbl_stt_result_thinking
-                  align: CENTER
-                  y: 30
-                  width: 90%
-                  styles: [style_medium_text_wrap] # Changed from inline style
-    - id: lvgl_page_speaking
-      widgets:
-        - obj:
-            id: card_speaking
-            width: 100%
-            height: 100%
-            align: CENTER
-            styles: [background] # Changed from inline style
-            widgets:
-              - label:
-                  id: lbl_tts_output_speaking
-                  align: TOP_LEFT
-                  x: 10
-                  y: 10
-                  width: 95%
-                  styles: [style_medium_text_wrap] # Changed from inline style
-                  long_mode: WRAP
-    - id: lvgl_page_error
-      widgets:
-        - obj:
-            id: card_error
-            width: 90%
-            height: 100
-            align: CENTER
-            styles: [background] # Changed from inline style
-            widgets:
-              - label:
-                  text: "Error"
-                  align: CENTER
-                  styles: [label_style_large] # Changed from inline style
+    invert_colors: True
+    auto_clear_enabled: false
+    pages:
+      - id: page_idle
+        lambda: |-
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          int center_x = 64;  // Center of 128px width
+          it.printf(center_x, 10, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "\"Hey Jarvis\"");
+          if (id(esp_weather_temp_value).has_state() && id(esp_weather_temp_unit).has_state()) {
+            it.printf(center_x, 50, id(font_temperature), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "%.0f%s", id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str());
+          } else {
+            it.printf(center_x, 50, id(font_temperature), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "N/A");
+          }
+          if (id(esp_weather_condition).has_state()) {
+            std::string condition = id(esp_weather_condition).state;
+            it.printf(center_x, 90, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "%s", condition.c_str());
+          } else {
+            it.printf(center_x, 90, id(font_medium), id(COLOR_TEXT_ICON_TEAL), TextAlign::TOP_CENTER, "Weather N/A");
+          }
+      - id: page_listening
+        lambda: |-
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          it.printf(64, 64, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Listening...");
+      - id: page_thinking
+        lambda: |-
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          it.printf(64, 64, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Thinking...");
+      - id: page_speaking
+        lambda: |-
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          it.printf(64, 64, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Speaking...");
+      - id: page_error
+        lambda: |-
+          it.fill(id(COLOR_BACKGROUND_PEACH));
+          it.printf(64, 64, id(font_large), id(COLOR_TEXT_ICON_TEAL), TextAlign::CENTER, "Error");
 
 font:
-  - file: "gfonts://Nunito Sans@bold"
+  - file: "gfonts://Nunito Sans@700"
     id: font_large
-    size: 30
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "gfonts://Nunito Sans@bold"
+    size: 20
+  - file: "gfonts://Nunito Sans@700"
     id: font_temperature
-    size: 72
-    glyphs: "°0123456789CF-. "
-  - file: "gfonts://Nunito Sans@semi-bold"
+    size: 30
+  - file: "gfonts://Nunito Sans@700"
     id: font_medium
-    size: 24
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "gfonts://Nunito Sans"
+    size: 15
+  - file: "gfonts://Nunito Sans@500"
     id: font_small
-    size: 14
-    glyphs: "°0123456789 .,!?%&()[]{}<>:;'/\\\"+-*=_^|~`#áéíóúñÁÉÍÓÚÑçÇãõÃÕàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛäëïöüÄËÏÖÜABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: 'fonts/materialdesignicons-webfont.ttf'
+    size: 10
+  - file: 'fonts/materialdesignicons-webfont.ttf' # Ensure this font file is in your /fonts directory
     id: font_weather_icons
-    size: 55
-    glyphs: "\U000F0599\U000F0594\U000F0595\U000F0590\U000F0591\U000F0592\U000F0593\U000F0596\U000F0597\U000F0598\U000F059D\U000F067E\U000F067F\U000F0F37\U000F14E4"
+    size: 55 # Adjusted to fit card
+    glyphs:  # Common weather glyphs from MDI
+      - "\U000F0599" # mdi-weather-sunny
+      - "\U000F0594" # mdi-weather-night
+      - "\U000F0595" # mdi-weather-partly-cloudy
+      - "\U000F0590" # mdi-weather-cloudy
+      - "\U000F0591" # mdi-weather-fog
+      - "\U000F0597" # mdi-weather-rainy
+      - "\U000F0598" # mdi-weather-snowy
+      - "\U000F067F" # mdi-weather-snowy-rainy
+      - "\U000F0596" # mdi-weather-pouring
+      - "\U000F067E" # mdi-weather-lightning-rainy
+      - "\U000F0593" # mdi-weather-lightning
+      - "\U000F059D" # mdi-weather-windy
+      - "\U000F0F37" # mdi-weather-sunny-alert (for exceptional)
+
+globals:
+  - id: assistant_response_text
+    type: std::string
+    restore_value: no
+    initial_value: '""'
+  - id: display_width
+    type: int
+    restore_value: no
+    initial_value: '128'
+  - id: display_height
+    type: int
+    restore_value: no
+    initial_value: '128'
+  - id: last_activity_time
+    type: int
+    restore_value: no
+    initial_value: '0' # Stores timestamp of last activity in seconds
+  - id: backlight_state
+    type: std::string
+    restore_value: no
+    initial_value: '"full"' # Tracks backlight state: "full", "dimmed", "off"
 
 
 color:
-  - id: COLOR_BACKGROUND_MAIN # New solid background color
-    hex: F7D391
-  - id: COLOR_CARD_BACKGROUND # Soft off-white cream - Should be #FAF4EA
-    hex: F0EAC1
+  - id: COLOR_BACKGROUND_PEACH # Warm peach solid background
+    hex: "FDD9AE"
+  - id: COLOR_CARD_BACKGROUND # Soft off-white cream
+    hex: "FAF4EA"
   - id: COLOR_TEXT_ICON_TEAL # Muted teal
-    hex: 3A6666
-  # Keep old colors in case they are used by other includes not visible here
-  - id: COLOR_BLUE 
+    hex: "3A6666"
+  - id: COLOR_SUN_ICON # Warm golden yellow for sun
+    hex: "F4B940"
+  # Remove old gradient colors if confirmed unused, keeping others for now
+  - id: COLOR_BLUE
     red: 0.2
     green: 0.2
     blue: 0.8
-  - id: COLOR_RED
+  - id: COLOR_RED # For original error page, though new one uses teal
     red: 0.8
     green: 0.1
     blue: 0.1
-  - id: COLOR_BEIGE_BG # Old - can be removed if no longer used by any includes
+  - id: COLOR_BEIGE_BG #EFE5D0 - Old
     hex: "EFE5D0"
-  - id: COLOR_DARK_TEAL_BG # Old - can be removed if no longer used by any includes
+  - id: COLOR_DARK_TEAL_BG #36555B - Old
     hex: "36555B"
+
+
+micro_wake_word:
+  on_wake_word_detected:
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+      - lambda: !lambda |-
+          id(last_activity_time) = millis() / 1000; // Update activity timestamp
+          id(backlight_state) = "full";
+
 
 voice_assistant:
   id: voiceassistant
-  on_listening:
-    - lvgl.page.show: lvgl_page_listening
-    - if:
-        condition: lvgl.is_paused
-        then:
-          - lvgl.resume:
-          - lvgl.widget.redraw:
-  on_stt_end:
-    - lvgl.label.update:
-        id: lbl_stt_result_thinking
-        text: !lambda return x.c_str();
-    - lvgl.page.show: lvgl_page_thinking
-  on_tts_start:
-    - lvgl.page.show: lvgl_page_speaking
-    - lvgl.label.update:
-        id: lbl_tts_output_speaking
-        text: !lambda return x.c_str();
+
+  on_client_connected:
+    - lambda: !lambda |-
+        id(last_activity_time) = millis() / 1000; // Update activity timestamp
+        id(backlight_state) = "full";
+
+
   on_error:
-    - lvgl.page.show: lvgl_page_error
+    - display.page.show: page_error
     - delay: 3s
-    - lvgl.page.show: lvgl_page_idle
-  on_end:
-    - delay: 3s
-    - lvgl.label.update:
-        id: lbl_stt_result_thinking
-        text: ""
-    - lvgl.label.update:
-        id: lbl_tts_output_speaking
-        text: ""
-    - lvgl.page.show: lvgl_page_idle
+    - display.page.show: page_idle
+
+  on_listening:
+    then:
+      - display.page.show: page_listening
+      - lambda: !lambda |-
+          id(last_activity_time) = millis() / 1000; // Update activity timestamp
+  
+  on_stt_end:
+    then:
+      - display.page.show: page_thinking
+      - lambda: !lambda |-
+          id(last_activity_time) = millis() / 1000; // Update activity timestamp
+  
+  on_start: # When voice assistant starts, go to listening. (Could also be on_wake_word_detected if using that)
+    - display.page.show: page_listening
+    - lambda: !lambda |-
+        id(last_activity_time) = millis() / 1000; // Update activity timestamp
+  
+  on_tts_start: # When HA starts speaking the response
+    then:
+      - display.page.show: page_speaking
+      - lambda: !lambda |-
+          id(last_activity_time) = millis() / 1000; // Update activity timestamp
+
+  on_tts_stream_end:
+    - lambda: id(assistant_response_text) = ""; # Clear text
+    - display.page.show: page_idle
+    - lambda: !lambda |-
+        id(last_activity_time) = millis() / 1000; // Update activity timestamp
+
+
+# Scripts for Mute/Unmute
+script:
+  - id: check_idle_time
+    then:
+      - lambda: !lambda |-
+          uint32_t current_time = millis() / 1000; // Current time in seconds
+          uint32_t idle_time = current_time - id(last_activity_time);
+          if (id(status_display).get_active_page() == id(page_idle)) {
+            if (idle_time >= 60 && id(backlight_state) != "off") {
+              id(backlight)->make_call().set_brightness(0).perform();
+              id(backlight_state) = "off";
+              ESP_LOGD("custom", "Backlight turned off after 60s idle");
+            } else if (idle_time >= 30 && idle_time < 60 && id(backlight_state) != "dimmed") {
+              id(backlight)->make_call().set_brightness(0.5).perform();
+              id(backlight_state) = "dimmed";
+              ESP_LOGD("custom", "Backlight dimmed to 50%% after 30s idle");
+            }
+          }
 
 sensor:
   - platform: homeassistant
     id: esp_weather_temp_value
-    entity_id: weather.forecast_casa_sp
+    entity_id: weather.forecast_casa_sp # Change to your HA weather entity
     attribute: temperature
     internal: true
     accuracy_decimals: 0
-    on_value: # Update LVGL label when value changes
-      then:
-        - if:
-            condition: 
-              and:
-                - lambda: 'return id(esp_weather_temp_value).has_state();'
-                - lambda: 'return id(esp_weather_temp_unit).has_state();'
-            then:
-              - lvgl.label.update:
-                  id: lbl_temperature_idle
-                  text: 
-                    format: "%.0f%s"
-                    args: [id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str()]
-            else:
-              - lvgl.label.update:
-                  id: lbl_temperature_idle
-                  text: "N/A"
 
 text_sensor:
   - platform: homeassistant
@@ -257,115 +271,7 @@ text_sensor:
     entity_id: weather.forecast_casa_sp
     attribute: temperature_unit
     internal: true
-    on_value: # Trigger temp update when unit changes (ensures correct concatenation)
-      then:
-        - if:
-            condition:
-              and:
-                - lambda: 'return id(esp_weather_temp_value).has_state();'
-                - lambda: 'return id(esp_weather_temp_unit).has_state();'
-            then:
-              - lvgl.label.update:
-                  id: lbl_temperature_idle
-                  text:
-                    format: "%.0f%s"
-                    args: [id(esp_weather_temp_value).state, id(esp_weather_temp_unit).state.c_str()]
-            else:
-              - lvgl.label.update:
-                  id: lbl_temperature_idle
-                  text: "N/A"
-
   - platform: homeassistant
     id: esp_weather_condition
     entity_id: weather.forecast_casa_sp
     internal: true
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: lbl_condition_idle
-            text: !lambda |-
-              const std::string& condition_str = id(esp_weather_condition).state;
-              if (condition_str == "partlycloudy") return "Partly Cloudy";
-              if (condition_str == "cloudy") return "Cloudy";
-              if (condition_str == "sunny") return "Sunny";
-              if (condition_str == "rain" || condition_str == "rainy") return "Rainy";
-              if (condition_str == "snow" || condition_str == "snowy") return "Snowy";
-              if (condition_str == "clear-night") return "Clear Night";
-              if (condition_str == "fog") return "Fog";
-              if (condition_str == "wind" || condition_str == "windy") return "Windy";
-              if (condition_str == "hail") return "Hail";
-              if (condition_str == "lightning") return "Lightning";
-              if (condition_str == "lightning-rainy") return "Lightning Storm";
-              if (condition_str == "pouring") return "Pouring";
-              if (condition_str == "windy-variant") return "Windy";
-              if (condition_str == "exceptional") return "Weather Alert";
-              if (!condition_str.empty()) {
-                  std::string s = condition_str;
-                  s[0] = toupper(s[0]);
-                  size_t pos = 0;
-                  while ((pos = s.find("_", pos)) != std::string::npos) {
-                      s.replace(pos, 1, " ");
-                      if (pos + 1 < s.length()) {
-                          s[pos+1] = toupper(s[pos+1]);
-                      }
-                  }
-                  return s.c_str();
-              }
-              return "Weather N/A";
-        - lvgl.label.update:
-            id: lbl_weather_icon_idle
-            text: !lambda |-
-              const std::string& condition_str = id(esp_weather_condition).state;
-              if (condition_str == "sunny") return u8"\U000F0599";       // mdi-weather-sunny
-              if (condition_str == "clear-night") return u8"\U000F0594"; // mdi-weather-night
-              if (condition_str == "partlycloudy") return u8"\U000F0595"; // mdi-weather-partly-cloudy
-              if (condition_str == "cloudy") return u8"\U000F0590";      // mdi-weather-cloudy
-              if (condition_str == "fog") return u8"\U000F0591";         // mdi-weather-fog
-              if (condition_str == "hail") return u8"\U000F0592";        // mdi-weather-hail
-              if (condition_str == "lightning") return u8"\U000F0593";   // mdi-weather-lightning
-              if (condition_str == "lightning-rainy") return u8"\U000F067E"; // mdi-weather-lightning-rainy
-              if (condition_str == "pouring") return u8"\U000F0596";     // mdi-weather-pouring
-              if (condition_str == "rainy" || condition_str == "rain") return u8"\U000F0597"; // mdi-weather-rainy
-              if (condition_str == "snowy" || condition_str == "snow") return u8"\U000F0598"; // mdi-weather-snowy
-              if (condition_str == "snowy-rainy") return u8"\U000F067F"; // mdi-weather-snowy-rainy
-              if (condition_str == "windy" || condition_str == "wind" || condition_str == "windy-variant") return u8"\U000F059D"; // mdi-weather-windy
-              if (condition_str == "exceptional") return u8"\U000F0F37"; // mdi-weather-sunny-alert
-              return ""; // Default/unknown icon
-
-switch:
-  - platform: template
-    name: Antiburn
-    id: switch_antiburn
-    icon: mdi:television-shimmer
-    optimistic: true
-    entity_category: "config"
-    turn_on_action:
-      - logger.log: "Starting Antiburn"
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-      - lvgl.pause:
-          show_snow: true
-    turn_off_action:
-      - logger.log: "Stopping Antiburn"
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-
-time:
-  - platform: sntp
-    on_time:
-      - hours: 2,3,4,5
-        minutes: 5
-        seconds: 0
-        then:
-          - switch.turn_on: switch_antiburn
-      - hours: 2,3,4,5
-        minutes: 35
-        seconds: 0
-        then:
-          - switch.turn_off: switch_antiburn

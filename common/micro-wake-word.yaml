@@ -11,39 +11,29 @@ micro_wake_word:
 voice_assistant:
   id: voiceassistant
   use_wake_word: false
-  
-  on_start:
-   - light.turn_on: user_led
-
-  on_error:
-   - if:
-        condition:
-          switch.is_on: use_wake_word
-        then:
-          - micro_wake_word.stop:
-          - micro_wake_word.start:
-  
-  on_end:
-   - light.turn_off: user_led
-   - if:
-        condition:
-          switch.is_on: use_wake_word
-        then:
-          - micro_wake_word.start:
 
   on_client_connected:
-   - if:
+    - if:
         condition:
           switch.is_on: use_wake_word
         then:
-          - micro_wake_word.start:
+          - script.execute: turn_on_micro_wake_word
 
   on_client_disconnected:
-   - if:
+    - if:
         condition:
           switch.is_on: use_wake_word
         then:
-          - micro_wake_word.stop:
+          - script.execute: turn_off_micro_wake_word
+
+  on_error:
+    - logger.log: "Voice assistant error!"
+    - if:
+        condition:
+          switch.is_on: use_wake_word
+        then:
+          - script.execute: turn_off_micro_wake_word
+          - script.execute: turn_on_micro_wake_word
 
 switch:
   - platform: template
